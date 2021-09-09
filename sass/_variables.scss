@@ -1,0 +1,10 @@
+:root {
+    // Used for javascript events
+    --phoneWidth: (max-width: 684px);
+    --tabletWidth: (max-width: 900px);
+}
+
+$phone-max-width: 684px;
+$tablet-max-width: 900px;
+$corner-radius: 3px;
+$font-size: 1rem;

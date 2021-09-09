@@ -1,0 +1,39 @@
+{% extends "base.html" -%}
+
+{%- block title %}
+    <title>{{ page.title }} - {{ config.extra.author }}</title>
+{%- endblock title -%}
+
+{%- block main -%}
+<article class="post">
+    {% set section = get_section(path="blog/_index.md") %}
+    <header>
+        <h1 class="post-title">
+            {% if page.extra['archive'] %}
+            {{ page.title }} ({{ section.pages | length }} post{{ section.pages | length | pluralize }})
+            {% else %}
+                <a href="{{ page.permalink }}">{{ page.title }}</a>
+            {% endif %}
+        </h1>
+        {% if not page.extra['skip-meta'] -%}
+            {{ posts::meta(page=page) }}
+        {% endif %}
+    </header>
+    
+    <div class="post-content">
+        {{ page.content | safe }}
+    </div>
+
+    {% if page.extra['archive'] %}
+        <ul class="post-list">
+            {% for page in section.pages %}
+                <li>
+                    {{ posts::meta(page=page, list=true) }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {# include gisqus comments #}
+</article>
+{%- endblock main -%}

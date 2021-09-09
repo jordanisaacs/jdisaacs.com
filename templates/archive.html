@@ -1,0 +1,19 @@
+
+{% extends "base.html" %}
+
+{% block main %}
+    <div class="post">
+        <h1 class="post-title">
+            Archive
+            ({{ term.pages | length }} post{{ term.pages | length | pluralize }})
+        </h1>
+    
+        <ul>
+            {% for post in section.pages %}
+                <li class="tag-list">
+                    {{ posts::meta(page=page, title=true) }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock main %}
