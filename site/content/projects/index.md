@@ -21,4 +21,4 @@ My NixOS system and user configuration. You can follow along with my {{ url(path
 
 Powered by Zola and hosted by Netlify, this site is one of my favorite projects. Building a personal website has been a goal of mine for many years and I am very happy to have it live.
 
-[Github Repo ](https://github.com/jordanisaacs/personal-website)
+[Github Repo ](https://github.com/jordanisaacs/jdisaacs.com)
