@@ -13,20 +13,20 @@
         {%- endif -%}
 
         <nav class="menu">
-            <ul class="menu__inner menu__inner--desktop">
+            <ul class="menu-inner menu-inner-desktop">
                 {{ menu::items(menu=menu_items | slice(end=show_len), current_url=current_url)}}
 
                 {%- if main_len > show_len -%}
-                    <ul class="menu__sub-inner">
-                        <li class="menu__sub-inner-more-trigger" tabindex="0">{{ menu_more  }} ▾</li>
-                        <ul class="menu__sub-inner-more hidden">
+                    <ul class="menu-inner-list">
+                        <li class="menu-inner-list-more-trigger" tabindex="0">{{ menu_more  }} ▾</li>
+                        <ul class="menu-inner-list-more hidden">
                             {{ menu::items(menu=menu_items | slice(start=show_len), current_url=current_url) }}
                         </ul>
                     </ul>
                 {%- endif -%}
             </ul>
 
-            <ul class="menu__inner menu__inner--mobile">
+            <ul class="menu-inner menu-inner-mobile">
                 {{ menu::items(menu=menu_items, current_url=current_url) }}
             </ul>
         </nav>

@@ -16,13 +16,13 @@
     flex-direction: column;
     position: relative;
 
-    &__inner {
+    &-inner {
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
-    &__logo {
+    &-logo {
         display: flex;
         flex: 1;
 
@@ -63,20 +63,20 @@
             right: 0;
         }
 
-        &__inner {
+        &-inner {
             display: flex;
             flex-wrap: wrap;
             list-style: none;
             margin: 0;
             padding: 0;
 
-            &--desktop {
+            &-desktop {
                 @media (max-width: $phone-max-width){
                     display: none;
                 }
             }
 
-            &--mobile {
+            &-mobile {
                 display: none;
 
                 @media (max-width: $phone-max-width) {
@@ -105,39 +105,45 @@
                     padding: 5px;
                 }
             }
-        }
 
-        &__sub-inner {
-            position: relative;
-            list-style: none;
-            padding: 0;
-            margin: 0;
+            &-list {
+                position: relative;
+                list-style: none;
+                padding: 0;
+                margin: 0;
 
-            &:not(:only-child) {
-                margin-left: 20px;
-            }
-
-            &-more {
-                @include menu;
-                top: 35px;
-                left: 0;
-
-                &-trigger {
-                    margin: 0;
-                    color: var(--accent-secondary);
-                    user-select: none;
-                    cursor: pointer;
+                &:not(:only-child) {
+                    margin-left: 20px;
                 }
 
-                li {
-                    margin: 0;
-                    padding: 5px;
-                    white-space: nowrap;
+                &-more {
+                    @include menu;
+                    top: 35px;
+                    left: 0;
+
+                    &-trigger {
+                        margin: 0;
+                        color: var(--accent-secondary);
+                        user-select: none;
+                        cursor: pointer;
+                    }
+
+                    li {
+                        margin: 0;
+                        padding: 5px;
+                        white-space: nowrap;
+                    }
                 }
             }
         }
 
-        &__trigger {
+        &-trigger {
+            display: none;
+
+            @media (max-width: $phone-max-width) {
+                display: inherit;
+            }
+
             &:focus {
                 outline: dotted 2px var(--color);
             }
@@ -150,7 +156,6 @@
                 height: 100%;
                 padding: 6px 8px;
                 position: relative;
-
             }
         }
     }
