@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>NixOS Configuration with Flakes - jd</title>
+    <link rel="stylesheet" href="https://jdisaacs.com/style.css">
+    <link rel="stylesheet" href="https://jdisaacs.com/color/blue.css">
+
+    <link rel="stylesheet" href="https://jdisaacs.com/font-jbm.css">
+<meta charset="utf-8" />
+  <title>Jordan Isaacs' Blog</title>
+</head>
+
+
+<body class="">
+    <div class="container center">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="https:&#x2F;&#x2F;jdisaacs.com">
+    <div class="logo">
+        jd
+    </div>
+</a>
+        </div>
+        <div class="menu__trigger" tabindex="0">
+            <div class="menu__trigger-button">menu</div>
+        </div>
+    </div>
+    
+    <nav class="menu">
+            <ul class="menu__inner menu__inner--desktop">
+                
+    
+        
+        
+        
+        
+            <li><a href="https://jdisaacs.com/blog">
+        blog
+    </a></li><li><a href="https://jdisaacs.com/about">
+        about
+    </a></li><li><a href="https://jdisaacs.com/projects">
+        projects
+    </a></li><li><a href="https:&#x2F;&#x2F;github.com&#x2F;jordanisaacs" rel="noopener noreferrer nofollow" target="_blank">
+        github </a></li></ul>
+
+            <ul class="menu__inner menu__inner--mobile">
+                
+    
+        
+        
+        
+        
+            <li><a href="https://jdisaacs.com/blog">
+        blog
+    </a></li><li><a href="https://jdisaacs.com/about">
+        about
+    </a></li><li><a href="https://jdisaacs.com/projects">
+        projects
+    </a></li><li><a href="https:&#x2F;&#x2F;github.com&#x2F;jordanisaacs" rel="noopener noreferrer nofollow" target="_blank">
+        github </a></li>
+            </ul>
+        </nav>
+    
+</header>
+<div class="content"><article class="post">
+        
+        <header>
+            <h1 class="post-title">
+                
+                    <a href="https:&#x2F;&#x2F;jdisaacs.com&#x2F;blog&#x2F;first&#x2F;">NixOS Configuration with Flakes</a>
+                
+            </h1>
+            
+<div class="post-meta meta-page">
+        
+    <span class="post-date">2021.09.06</span>
+
+        
+        :: <span class="post-readtime">
+            3 min read
+        </span>
+        
+
+        
+    
+    ::
+    <strong>^<a href="https://jdisaacs.com/series/nixos-desktop/">NixOS Desktop</a></strong>
+    
+    
+    ::
+    #<a href="https://jdisaacs.com/tags/nixos/">NixOS</a>
+    #<a href="https://jdisaacs.com/tags/nix/">Nix</a>
+    #<a href="https://jdisaacs.com/tags/x11/">X11</a>
+    #<a href="https://jdisaacs.com/tags/linux/">Linux</a>
+    
+    
+    </div>
+
+            
+        </header>
+        
+        <div class="post-content">
+            <h1 id="my-flakes-philosophy">My Flakes Philosophy<a class="zola-anchor" href="#my-flakes-philosophy" aria-label="Anchor link for: my-flakes-philosophy">§</a>
+</h1>
+<p>In this blog post I will overview how to setup flakes with NixOS and home-manager and my approach to configuring. While flakes are <em>technically</em> unstable I have only ever used NixOS with flakes and have not had any issues with them. NixOS and home-manager have a wealth of options but most of them can be grouped together into sensible categories such as <em>sound</em>, <em>display</em>, etc. Therefore I leverage the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Module">Nix module system</a> to create a high level set of options that makes setting up new systems and profiles easier.</p>
+<span id="continue-reading"></span>
+<p>I have to thank Wil Taylor for his amazing NixOS series (see below) and his <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/wiltaylor/dotfiles">dotfiles</a> repository for providing a baseline/inspiration. My configuration started off as a copy of his and has since evolved but much remains similar. He uses a <em>role</em> system which lets you choose what configuration files to import while I prefer to use the module system which provides more flexibility. This flexibility will show its strength in a future post where I show setting up NixOS without a display manager.</p>
+<h1 id="setting-up-nixos">Setting up NixOS<a class="zola-anchor" href="#setting-up-nixos" aria-label="Anchor link for: setting-up-nixos">§</a>
+</h1>
+<p>There has been much written on setting up NixOS so if you don't have it installed check out these resources:</p>
+<ul>
+<li><a rel="noopener nofollow noreferrer" target="_blank" href="https://grahamc.com/blog/nixos-on-dell-9560">Graham Christensen Dell Setup</a>
+<ul>
+<li>Setting up partitions and encryption (luks)</li>
+</ul>
+</li>
+<li><a rel="noopener nofollow noreferrer" target="_blank" href="https://www.youtube.com/watch?v=QKoQ1gKJY5A&amp;list=PL-saUBvIJzOkjAw_vOac75v-x6EzNzZq-">Wil Taylor's NixOS series</a>
+<ul>
+<li>Overview of how to install NixOS and basic flake introduction. Also overviews how to set up an initial NixOS flake configuration. I used the series to get started with NixOS/Flakes and highly recommend watching the full series.</li>
+</ul>
+</li>
+</ul>
+<h1 id="introduction-to-flakes">Introduction to Flakes<a class="zola-anchor" href="#introduction-to-flakes" aria-label="Anchor link for: introduction-to-flakes">§</a>
+</h1>
+<p>As with NixOS setup there are some good writeups on how flakes work. My go-to when I need to brush up is <a rel="noopener nofollow noreferrer" target="_blank" href="https://serokell.io/blog/practical-nix-flakes">Practical Nix Flakes</a>. Also Wil Taylor's series provides a nice overview as well.</p>
+<p>See the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Flakes">wiki</a> for installation. I recommend following the system-wide installation as the <code>nixFlakes</code> installation option will not work as we need access to the <code>nixos-rebuild ***** --flake</code> command.</p>
+<h1 id="writing-flake-nix">Writing flake.nix<a class="zola-anchor" href="#writing-flake-nix" aria-label="Anchor link for: writing-flake-nix">§</a>
+</h1>
+<p>The core of the system configuration is <code>flake.nix</code>. This is the file that all our nix flake commands look for.</p>
+<h2 id="initialize-flake">Initialize flake<a class="zola-anchor" href="#initialize-flake" aria-label="Anchor link for: initialize-flake">§</a>
+</h2>
+<p>First create your directory that will host your configuration. I followed Wil Taylor's lead (see NixOS series) and created <code>.dotfiles</code> folder in my home directory. In your folder call <code>nix flake init</code> which will create a basic flake. You should see:</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{
+</span><span>  </span><span style="color:#d08770;">description </span><span>= &quot;</span><span style="color:#a3be8c;">A very basic flake</span><span>&quot;;
+</span><span>
+</span><span>  </span><span style="color:#d08770;">outputs </span><span>= </span><span style="color:#8fa1b3;">{ </span><span>self, nixpkgs </span><span style="color:#8fa1b3;">}</span><span>: {
+</span><span>
+</span><span>    </span><span style="color:#d08770;">packages</span><span>.</span><span style="color:#d08770;">x86_64-linux</span><span>.</span><span style="color:#d08770;">hello </span><span>= </span><span style="color:#bf616a;">nixpkgs</span><span>.</span><span style="color:#bf616a;">legacyPackages</span><span>.</span><span style="color:#bf616a;">x86_64-linux</span><span>.</span><span style="color:#bf616a;">hello</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#d08770;">defaultPackage</span><span>.</span><span style="color:#d08770;">x86_64-linux </span><span>= </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#bf616a;">packages</span><span>.</span><span style="color:#bf616a;">x86_64-linux</span><span>.</span><span style="color:#bf616a;">hello</span><span>;
+</span><span>
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<p>We can update the description to signify that this is our system config <code>description = &quot;System config&quot;;</code>.</p>
+<h2 id="setting-inputs">Setting inputs<a class="zola-anchor" href="#setting-inputs" aria-label="Anchor link for: setting-inputs">§</a>
+</h2>
+<p>I am a believer in <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/nix-community/home-manager">home-manager</a> for configuring my user environment. It allows me to have my user config follow the same philosophies of my NixOS config. Combined with its support of flakes, my entire configuration can be in a single github repository.</p>
+<p>I also use unstable nixpkgs as the default which is a preference of mine. To reduce dependencies and pass my channel choice, I have home-manager follow my nixpkgs.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span style="color:#bf616a;">inputs </span><span style="background-color:#bf616a;color:#2b303b;">=</span><span> {
+</span><span>  </span><span style="color:#d08770;">nixpkgs</span><span>.</span><span style="color:#d08770;">url </span><span>= &quot;</span><span style="color:#a3be8c;">nixpkgs/nixos-unstable</span><span>&quot;;
+</span><span>
+</span><span>  </span><span style="color:#d08770;">home-manager </span><span>= {
+</span><span>    </span><span style="color:#d08770;">url </span><span>= &quot;</span><span style="color:#a3be8c;">github:nix-community/home-manager</span><span>&quot;;
+</span><span>    </span><span style="color:#d08770;">inputs</span><span>.</span><span style="color:#d08770;">nixpkgs</span><span>.</span><span style="color:#d08770;">follows </span><span>= &quot;</span><span style="color:#a3be8c;">nixpkgs</span><span>&quot;;
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<p>For more information on flake inputs check out the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html#flake-inputs">manual</a></p>
+<h2 id="setting-up-outputs">Setting up outputs<a class="zola-anchor" href="#setting-up-outputs" aria-label="Anchor link for: setting-up-outputs">§</a>
+</h2>
+<p>:w</p>
+
+        </div>
+
+        
+
+        
+    </article></div>
+
+<footer class="footer">
+                <div class="footer__inner">
+  <div class="copyright">
+      <span>
+          © 2021 Jordan Isaacs ::
+          Powered by
+          <a href="https:&#x2F;&#x2F;getzola.org&#x2F;" rel="noopener noreferrer nofollow" target="_blank">
+        Zola</a>
+          and
+          <a href="https:&#x2F;&#x2F;netlify.com&#x2F;" rel="noopener noreferrer nofollow" target="_blank">
+        Netlify</a>
+      </span>
+      <span>
+          Like this site? see <a href="https:&#x2F;&#x2F;github.com&#x2F;jordanisaacs&#x2F;personal-website" rel="noopener noreferrer nofollow" target="_blank">
+        source code here</a>
+      </span>
+  </div>
+
+    <script type="text/javascript" src="https://jdisaacs.com/js/main.js"></script>
+</div>
+            </footer></div>
+</body>
+
+</html>

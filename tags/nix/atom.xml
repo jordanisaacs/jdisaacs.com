@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+	<title> - Nix</title>
+	<link href="https://jdisaacs.com/tags/nix/atom.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://jdisaacs.com"/>
+	<generator uri="https://www.getzola.org/">Zola</generator>
+	<updated>2021-09-06T00:00:00+00:00</updated>
+	<id>https://jdisaacs.com/tags/nix/atom.xml</id>
+	<entry xml:lang="en">
+		<title>NixOS Configuration with Flakes</title>
+		<published>2021-09-06T00:00:00+00:00</published>
+		<updated>2021-09-06T00:00:00+00:00</updated>
+		<link href="https://jdisaacs.com/blog/first/" type="text/html"/>
+		<id>https://jdisaacs.com/blog/first/</id>
+		<content type="html">&lt;h1 id=&quot;my-flakes-philosophy&quot;&gt;My Flakes Philosophy&lt;a class=&quot;zola-anchor&quot; href=&quot;#my-flakes-philosophy&quot; aria-label=&quot;Anchor link for: my-flakes-philosophy&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;In this blog post I will overview how to setup flakes with NixOS and home-manager and my approach to configuring. While flakes are &lt;em&gt;technically&lt;&#x2F;em&gt; unstable I have only ever used NixOS with flakes and have not had any issues with them. NixOS and home-manager have a wealth of options but most of them can be grouped together into sensible categories such as &lt;em&gt;sound&lt;&#x2F;em&gt;, &lt;em&gt;display&lt;&#x2F;em&gt;, etc. Therefore I leverage the &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Module&quot;&gt;Nix module system&lt;&#x2F;a&gt; to create a high level set of options that makes setting up new systems and profiles easier.&lt;&#x2F;p&gt;
+&lt;span id=&quot;continue-reading&quot;&gt;&lt;&#x2F;span&gt;
+&lt;p&gt;I have to thank Wil Taylor for his amazing NixOS series (see below) and his &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;wiltaylor&#x2F;dotfiles&quot;&gt;dotfiles&lt;&#x2F;a&gt; repository for providing a baseline&#x2F;inspiration. My configuration started off as a copy of his and has since evolved but much remains similar. He uses a &lt;em&gt;role&lt;&#x2F;em&gt; system which lets you choose what configuration files to import while I prefer to use the module system which provides more flexibility. This flexibility will show its strength in a future post where I show setting up NixOS without a display manager.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;setting-up-nixos&quot;&gt;Setting up NixOS&lt;a class=&quot;zola-anchor&quot; href=&quot;#setting-up-nixos&quot; aria-label=&quot;Anchor link for: setting-up-nixos&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;There has been much written on setting up NixOS so if you don&#x27;t have it installed check out these resources:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;grahamc.com&#x2F;blog&#x2F;nixos-on-dell-9560&quot;&gt;Graham Christensen Dell Setup&lt;&#x2F;a&gt;
+&lt;ul&gt;
+&lt;li&gt;Setting up partitions and encryption (luks)&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=QKoQ1gKJY5A&amp;amp;list=PL-saUBvIJzOkjAw_vOac75v-x6EzNzZq-&quot;&gt;Wil Taylor&#x27;s NixOS series&lt;&#x2F;a&gt;
+&lt;ul&gt;
+&lt;li&gt;Overview of how to install NixOS and basic flake introduction. Also overviews how to set up an initial NixOS flake configuration. I used the series to get started with NixOS&#x2F;Flakes and highly recommend watching the full series.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h1 id=&quot;introduction-to-flakes&quot;&gt;Introduction to Flakes&lt;a class=&quot;zola-anchor&quot; href=&quot;#introduction-to-flakes&quot; aria-label=&quot;Anchor link for: introduction-to-flakes&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;As with NixOS setup there are some good writeups on how flakes work. My go-to when I need to brush up is &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;serokell.io&#x2F;blog&#x2F;practical-nix-flakes&quot;&gt;Practical Nix Flakes&lt;&#x2F;a&gt;. Also Wil Taylor&#x27;s series provides a nice overview as well.&lt;&#x2F;p&gt;
+&lt;p&gt;See the &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Flakes&quot;&gt;wiki&lt;&#x2F;a&gt; for installation. I recommend following the system-wide installation as the &lt;code&gt;nixFlakes&lt;&#x2F;code&gt; installation option will not work as we need access to the &lt;code&gt;nixos-rebuild ***** --flake&lt;&#x2F;code&gt; command.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;writing-flake-nix&quot;&gt;Writing flake.nix&lt;a class=&quot;zola-anchor&quot; href=&quot;#writing-flake-nix&quot; aria-label=&quot;Anchor link for: writing-flake-nix&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;The core of the system configuration is &lt;code&gt;flake.nix&lt;&#x2F;code&gt;. This is the file that all our nix flake commands look for.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;initialize-flake&quot;&gt;Initialize flake&lt;a class=&quot;zola-anchor&quot; href=&quot;#initialize-flake&quot; aria-label=&quot;Anchor link for: initialize-flake&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;First create your directory that will host your configuration. I followed Wil Taylor&#x27;s lead (see NixOS series) and created &lt;code&gt;.dotfiles&lt;&#x2F;code&gt; folder in my home directory. In your folder call &lt;code&gt;nix flake init&lt;&#x2F;code&gt; which will create a basic flake. You should see:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;nix&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-nix &quot;&gt;&lt;code class=&quot;language-nix&quot; data-lang=&quot;nix&quot;&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;description &lt;&#x2F;span&gt;&lt;span&gt;= &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;A very basic flake&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;outputs &lt;&#x2F;span&gt;&lt;span&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;{ &lt;&#x2F;span&gt;&lt;span&gt;self, nixpkgs &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;}&lt;&#x2F;span&gt;&lt;span&gt;: {
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;packages&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;x86_64-linux&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;hello &lt;&#x2F;span&gt;&lt;span&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;nixpkgs&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;legacyPackages&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;x86_64-linux&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;hello&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;defaultPackage&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;x86_64-linux &lt;&#x2F;span&gt;&lt;span&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;packages&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;x86_64-linux&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;hello&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;  };
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;We can update the description to signify that this is our system config &lt;code&gt;description = &amp;quot;System config&amp;quot;;&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;setting-inputs&quot;&gt;Setting inputs&lt;a class=&quot;zola-anchor&quot; href=&quot;#setting-inputs&quot; aria-label=&quot;Anchor link for: setting-inputs&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;I am a believer in &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nix-community&#x2F;home-manager&quot;&gt;home-manager&lt;&#x2F;a&gt; for configuring my user environment. It allows me to have my user config follow the same philosophies of my NixOS config. Combined with its support of flakes, my entire configuration can be in a single github repository.&lt;&#x2F;p&gt;
+&lt;p&gt;I also use unstable nixpkgs as the default which is a preference of mine. To reduce dependencies and pass my channel choice, I have home-manager follow my nixpkgs.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;nix&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-nix &quot;&gt;&lt;code class=&quot;language-nix&quot; data-lang=&quot;nix&quot;&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;inputs &lt;&#x2F;span&gt;&lt;span style=&quot;background-color:#bf616a;color:#2b303b;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;nixpkgs&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;url &lt;&#x2F;span&gt;&lt;span&gt;= &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;nixpkgs&#x2F;nixos-unstable&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;home-manager &lt;&#x2F;span&gt;&lt;span&gt;= {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;url &lt;&#x2F;span&gt;&lt;span&gt;= &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;github:nix-community&#x2F;home-manager&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;inputs&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;nixpkgs&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;follows &lt;&#x2F;span&gt;&lt;span&gt;= &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;nixpkgs&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;;
+&lt;&#x2F;span&gt;&lt;span&gt;  };
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;For more information on flake inputs check out the &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nixos.org&#x2F;manual&#x2F;nix&#x2F;unstable&#x2F;command-ref&#x2F;new-cli&#x2F;nix3-flake.html#flake-inputs&quot;&gt;manual&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;setting-up-outputs&quot;&gt;Setting up outputs&lt;a class=&quot;zola-anchor&quot; href=&quot;#setting-up-outputs&quot; aria-label=&quot;Anchor link for: setting-up-outputs&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;:w&lt;&#x2F;p&gt;
+</content>
+	</entry>
+	<entry xml:lang="en">
+		<title>NixOS Configuration with Flakes</title>
+		<published>2021-09-06T00:00:00+00:00</published>
+		<updated>2021-09-06T00:00:00+00:00</updated>
+		<link href="https://jdisaacs.com/blog/second/" type="text/html"/>
+		<id>https://jdisaacs.com/blog/second/</id>
+		<content type="html">&lt;h1 id=&quot;my-flakes-philosophy&quot;&gt;My Flakes Philosophy&lt;a class=&quot;zola-anchor&quot; href=&quot;#my-flakes-philosophy&quot; aria-label=&quot;Anchor link for: my-flakes-philosophy&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;In this blog post I will overview how to setup flakes with NixOS and home-manager and my approach to configuring. While flakes are &lt;em&gt;technically&lt;&#x2F;em&gt; unstable I have only ever used NixOS with flakes and have not had any issues with them. NixOS and home-manager have a wealth of options but most of them can be grouped together into sensible categories such as &lt;em&gt;sound&lt;&#x2F;em&gt;, &lt;em&gt;display&lt;&#x2F;em&gt;, etc. Therefore I leverage the &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Module&quot;&gt;Nix module system&lt;&#x2F;a&gt; to create a high level set of options that makes setting up new systems and profiles easier.&lt;&#x2F;p&gt;
+&lt;span id=&quot;continue-reading&quot;&gt;&lt;&#x2F;span&gt;
+&lt;p&gt;I have to thank Wil Taylor for his amazing NixOS series (see below) and his &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;wiltaylor&#x2F;dotfiles&quot;&gt;dotfiles&lt;&#x2F;a&gt; repository for providing a baseline&#x2F;inspiration. My configuration started off as a copy of his and has since evolved but much remains similar. He uses a &lt;em&gt;role&lt;&#x2F;em&gt; system which lets you choose what configuration files to import while I prefer to use the module system which provides more flexibility. This flexibility will show its strength in a future post where I show setting up NixOS without a display manager.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;setting-up-nixos&quot;&gt;Setting up NixOS&lt;a class=&quot;zola-anchor&quot; href=&quot;#setting-up-nixos&quot; aria-label=&quot;Anchor link for: setting-up-nixos&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;There has been much written on setting up NixOS so if you don&#x27;t have it installed check out these resources:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;grahamc.com&#x2F;blog&#x2F;nixos-on-dell-9560&quot;&gt;Graham Christensen Dell Setup&lt;&#x2F;a&gt;
+&lt;ul&gt;
+&lt;li&gt;Setting up partitions and encryption (luks)&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=QKoQ1gKJY5A&amp;amp;list=PL-saUBvIJzOkjAw_vOac75v-x6EzNzZq-&quot;&gt;Wil Taylor&#x27;s NixOS series&lt;&#x2F;a&gt;
+&lt;ul&gt;
+&lt;li&gt;Overview of how to install NixOS and basic flake introduction. Also overviews how to set up an initial NixOS flake configuration. I used the series to get started with NixOS&#x2F;Flakes and highly recommend watching the full series.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h1 id=&quot;introduction-to-flakes&quot;&gt;Introduction to Flakes&lt;a class=&quot;zola-anchor&quot; href=&quot;#introduction-to-flakes&quot; aria-label=&quot;Anchor link for: introduction-to-flakes&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;As with NixOS setup there are some good writeups on how flakes work. My go-to when I need to brush up is &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;serokell.io&#x2F;blog&#x2F;practical-nix-flakes&quot;&gt;Practical Nix Flakes&lt;&#x2F;a&gt;. Also Wil Taylor&#x27;s series provides a nice overview as well.&lt;&#x2F;p&gt;
+</content>
+	</entry>
+</feed>
