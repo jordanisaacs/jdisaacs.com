@@ -54,13 +54,26 @@
     }
 
     .menu {
-        margin-top: 10px;
+        &-desktop {
+            margin-top: 10px;
 
-        @media (max-width: $phone-max-width) {
-            padding-top: 15px;
-            @include menu;
-            top: 50px;
-            right: 0;
+            @media (max-width: $phone-max-width) {
+                display: none;
+            }
+        }
+
+        &-mobile {
+            @media (min-width: $phone-max-width) {
+                display: none;
+            }
+
+            @media (max-width: $phone-max-width) {
+                dislay: block;
+                @include menu;
+                padding-top: 15px;
+                top: 50px;
+                right: 0;
+            }
         }
 
         &-inner {
@@ -71,7 +84,7 @@
             padding: 0;
 
             &-desktop {
-                @media (max-width: $phone-max-width){
+                @media (max-width: $phone-max-width) {
                     display: none;
                 }
             }

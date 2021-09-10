@@ -12,20 +12,22 @@
             {%- set menu_more = "" -%}
         {%- endif -%}
 
-        <nav class="menu">
+        <nav class="menu-desktop">
             <ul class="menu-inner menu-inner-desktop">
                 {{ menu::items(menu=menu_items | slice(end=show_len), current_url=current_url)}}
 
                 {%- if main_len > show_len -%}
                     <ul class="menu-inner-list">
                         <li class="menu-inner-list-more-trigger" tabindex="0">{{ menu_more  }} ▾</li>
-                        <ul class="menu-inner-list-more hidden">
+                        <ul class="menu-inner-list-more">
                             {{ menu::items(menu=menu_items | slice(start=show_len), current_url=current_url) }}
                         </ul>
                     </ul>
                 {%- endif -%}
             </ul>
 
+        </nav>
+        <nav class="menu-mobile">
             <ul class="menu-inner menu-inner-mobile hidden">
                 {{ menu::items(menu=menu_items, current_url=current_url) }}
             </ul>
