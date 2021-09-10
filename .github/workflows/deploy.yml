@@ -33,14 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: acions/checkout@v2
-      - name: Deploy Site to Netlify
-        uses: nwtgck/actions-netlify@v1.2
+      - name: Deploy to GH Pages
+        uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
-          publish-dir: './result'
-          production-branch: master
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deploy from Github Actions"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        timeout-minutes: 1
+          branch: main
+          folder: result
