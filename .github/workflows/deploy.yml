@@ -21,20 +21,15 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       - name: Build Zola site with Nix Flakes
-      - uses: cachix/install-nix-action@v14
+        uses: cachix/install-nix-action@v14
         with:
-          nix_path: nixpkgs=channel:nixos-unstable
+          nix_path: https://github.com/numtide/nix-unstable-installer/releases/download/nix-2.4pre20210823_af94b54/install
           extra_nix_config: |
             experimental-features = nix-command flakes
       - run: nix flake check
-      - run: nix build
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: acions/checkout@v2
+      - run: nix build --out-link build
       - name: Deploy to GH Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.5
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          branch: main
-          folder: result
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
