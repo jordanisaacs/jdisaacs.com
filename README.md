@@ -1,6 +1,6 @@
 # My Personal Website
 
-My personal site to blog, show off, ..., anything really. Uses Zola and deployed with Nix/Netlify. 
+My personal site to blog, show off, ..., anything really. Uses Zola and deployed with Nix/Github Pages. 
 
 ## Theme
 
