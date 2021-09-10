@@ -2,7 +2,7 @@
 
 My personal site to blog, show off, ..., anything really. Uses Zola and deployed with Nix/Github Pages. 
 
-[https://jdisaacs.com]()
+[https://jdisaacs.com](https://jdisaacs.com)
 
 ## Theme
 
