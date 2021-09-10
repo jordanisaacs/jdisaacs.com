@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title> - X11</title>
+        <link>https://jdisaacs.com</link>
+        <description></description>
+        <generator>Zola</generator>
+        <language>en</language>
+        <atom:link href="https://jdisaacs.com/tags/x11/rss.xml" rel="self" type="application/rss+xml"/>
+        <lastBuildDate>Mon, 06 Sep 2021 00:00:00 +0000</lastBuildDate>
+        <item>
+            <title>NixOS Configuration with Flakes</title>
+            <pubDate>Mon, 06 Sep 2021 00:00:00 +0000</pubDate>
+            <link>https://jdisaacs.com/blog/first/</link>
+            <guid>https://jdisaacs.com/blog/first/</guid>
+            <description>&lt;h1 id=&quot;my-flakes-philosophy&quot;&gt;My Flakes Philosophy&lt;a class=&quot;zola-anchor&quot; href=&quot;#my-flakes-philosophy&quot; aria-label=&quot;Anchor link for: my-flakes-philosophy&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;In this blog post I will overview how to setup flakes with NixOS and home-manager and my approach to configuring. While flakes are &lt;em&gt;technically&lt;&#x2F;em&gt; unstable I have only ever used NixOS with flakes and have not had any issues with them. NixOS and home-manager have a wealth of options but most of them can be grouped together into sensible categories such as &lt;em&gt;sound&lt;&#x2F;em&gt;, &lt;em&gt;display&lt;&#x2F;em&gt;, etc. Therefore I leverage the &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Module&quot;&gt;Nix module system&lt;&#x2F;a&gt; to create a high level set of options that makes setting up new systems and profiles easier.&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>NixOS Configuration with Flakes</title>
+            <pubDate>Mon, 06 Sep 2021 00:00:00 +0000</pubDate>
+            <link>https://jdisaacs.com/blog/second/</link>
+            <guid>https://jdisaacs.com/blog/second/</guid>
+            <description>&lt;h1 id=&quot;my-flakes-philosophy&quot;&gt;My Flakes Philosophy&lt;a class=&quot;zola-anchor&quot; href=&quot;#my-flakes-philosophy&quot; aria-label=&quot;Anchor link for: my-flakes-philosophy&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;In this blog post I will overview how to setup flakes with NixOS and home-manager and my approach to configuring. While flakes are &lt;em&gt;technically&lt;&#x2F;em&gt; unstable I have only ever used NixOS with flakes and have not had any issues with them. NixOS and home-manager have a wealth of options but most of them can be grouped together into sensible categories such as &lt;em&gt;sound&lt;&#x2F;em&gt;, &lt;em&gt;display&lt;&#x2F;em&gt;, etc. Therefore I leverage the &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Module&quot;&gt;Nix module system&lt;&#x2F;a&gt; to create a high level set of options that makes setting up new systems and profiles easier.&lt;&#x2F;p&gt;
+</description>
+        </item>
+    </channel>
+</rss>
