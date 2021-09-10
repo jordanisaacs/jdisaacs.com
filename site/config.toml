@@ -1,0 +1,40 @@
+# The URL the site will be built for
+base_url = "https://jdisaacs.com"
+
+# Whether to automatically compile all Sass files in the sass directory
+compile_sass = true
+
+# Whether to build a search index to be used later on by a JavaScript library
+build_search_index = false
+
+# Taxonomies https://www.getzola.org/documentation/content/taxonomies/
+taxonomies = [
+    { name = "series", feed = true, paginate_by = 20 },
+    { name = "tags", feed = true, paginate_by = 20 },
+]
+
+[markdown]
+# Whether to do syntax highlighting
+# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
+highlight_code = true
+
+external_links_target_blank = true
+external_links_no_follow = true
+external_links_no_referrer = true
+
+[extra]
+# Put all your custom variables here
+theme_color = "blue"
+author = "jd"
+read_more = "read more..."
+copyright = "Jordan Isaacs"
+
+logo_text = "jd"
+center = true
+
+main_menu_items = [
+    { url = "/blog/", name="blog" },
+    { url = "/about/", name="about" },
+    { url = "/projects/", name="projects" },
+    { url = "https://github.com/jordanisaacs", name="github", external=true, newtab=true},
+]

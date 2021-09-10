@@ -1,0 +1,16 @@
+{% extends "base.html" -%}
+
+{%- block title %}
+    <title>{{ section.title }} - {{ config.extra.author }}</title>
+{%- endblock title -%}
+
+{%- block main -%}
+    <article class="post">
+        <div class="post-content">
+            {{ section.content | safe }}
+        </div>
+        {{ squiggle::squiggle() }}
+
+        {{ lists::list_pages()}}
+    </article>
+{%- endblock main -%}

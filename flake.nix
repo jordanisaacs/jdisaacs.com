@@ -1,20 +1,27 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
+    nixpkgs.url = "nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
-      in {
-        defaultPackage = pkgs.hello;
+        pkgs = import nixpkgs {
+            inherit system;
+            overlays = [ overlay ];
+        };
+        overlay = (final: prev: {
+          jdisaacs-site = prev.callPackage ./site {};
+        });
+      in 
+      rec {
+        inherit (overlay);
+
+        defaultPackage = pkgs.jdisaacs-site;
 
         devShell = pkgs.mkShell {
-          buildInputs = [
-            pkgs.zola
-          ];
+          buildInputs = [ pkgs.zola ];
         };
       }
     );

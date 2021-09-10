@@ -1,0 +1,13 @@
+{%- macro font(config) %}
+    <link rel="stylesheet" href="{{ get_url(path="font-jbm.css", trailing_slash=false) }}">
+{% endmacro font -%}
+
+{% macro styling(config) %}
+    <link rel="stylesheet" href="{{ get_url(path="style.css", trailing_slash=false) }}">
+    {% if config.extra.theme_color -%}
+        {% set color = "color/" ~config.extra.theme_color ~ ".css" -%}
+        <link rel="stylesheet" href="{{ get_url(path=color, trailing_slash=false) }}">
+    {%- else -%}
+        <link rel="stylesheet" href="{{ get_url(path="color/blue.css", trailing_slash=false) }}">
+    {% endif %}
+{% endmacro styling %}
