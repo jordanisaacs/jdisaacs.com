@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: "Build Site"
+name: "Build and Deploy Site"
 
 # Controls when the workflow will run
 on:
@@ -20,6 +20,7 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      - name: Build Zola site with Nix Flakes
       - uses: cachix/install-nix-action@v14
         with:
           nix_path: nixpkgs=channel:nixos-unstable
@@ -27,3 +28,19 @@ jobs:
             experimental-features = nix-command flakes
       - run: nix flake check
       - run: nix build
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: acions/checkout@v2
+      - name: Deploy Site to Netlify
+        uses: nwtgck/actions-netlify@v1.2
+        with:
+          publish-dir: './result'
+          production-branch: master
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from Github Actions"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 1
