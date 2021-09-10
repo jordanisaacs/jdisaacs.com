@@ -14,4 +14,4 @@ feed_discovery = true
 * View the {{ url(path="/archive/", text="archive") }}
 * View all {{ url(path="/series/", text="series") }}
 * View all {{ url(path="/tags/", text="tags") }}
-* Subscribe to the {{ url(path="blog/rss.xml", text="rss feeds", trail_slash=false) }}
+* Subscribe to the {{ url(path="blog/rss.xml", text="rss feed", trail_slash=false) }}
