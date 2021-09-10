@@ -14,9 +14,9 @@
             menu && is_phone() && !was_phone &&
                 menu.classList.add("hidden"),
             menu && !is_phone() &&
-                menu.classList.toggle("hidden", false),
-            menu_more && is_phone() &&
-                menu_more.classList.toggle("hidden", true),
+                menu.classList.remove("hidden"),
+            menu_more && !is_phone() &&
+                menu_more.classList.add("hidden"),
             was_phone = is_phone()
         };
 
