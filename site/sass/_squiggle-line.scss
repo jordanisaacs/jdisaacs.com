@@ -10,15 +10,15 @@
     
     &-ellipse {
       position: absolute;
-      background: radial-gradient(ellipse, transparent, transparent 3px, var(--border-color) 3px, var(--border-color) 5px, transparent 5.5px);
-      background-size: 16.5px 15px;
+      background: radial-gradient(ellipse, transparent, transparent 3px, var(--border-color) 3px, var(--border-color) 5px, transparent 5px);
+      background-size: 16px 15px;
       width: 100%;
       height: 7.5px;
     }
 
     &-ellipse2 {
-      top: 7.5px;
-      left: 8.25px;
+      top: 7.42px;
+      left: 8px;
       background-clip: padding-box;
       background-position: 0px -7.5px;
     }
