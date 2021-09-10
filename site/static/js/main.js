@@ -10,7 +10,7 @@
             return window.matchMedia(phone_width).matches
         },
         was_phone = is_phone(),
-        toggle_vis = function () {
+        toggle_vis = function () { // toggle vis doesn't work on safari ios zoom
             menu && is_phone() && !was_phone &&
                 menu.classList.add("hidden"),
             menu && !is_phone() &&
