@@ -1,4 +1,7 @@
 {
+  # https://lukebentleyfox.net/posts/building-this-blog/
+  # building zola is based on ^ blog post
+  
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
