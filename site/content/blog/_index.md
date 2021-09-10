@@ -3,6 +3,10 @@ title = "The Blog"
 sort_by = "date"
 paginate_by = 10
 insert_anchor_links = "right"
+generate_feed = true
+
+[extra]
+feed_discovery = true
 +++
 
 # Welcome to my blog!
@@ -10,4 +14,4 @@ insert_anchor_links = "right"
 * View the {{ url(path="/archive/", text="archive") }}
 * View all {{ url(path="/series/", text="series") }}
 * View all {{ url(path="/tags/", text="tags") }}
-* Subscribe to {{ url(path="/feeds/", text="feeds") }}
+* Subscribe to the {{ url(path="blog/rss.xml", text="rss feeds", trail_slash=false) }}

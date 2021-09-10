@@ -7,6 +7,8 @@ compile_sass = true
 # Whether to build a search index to be used later on by a JavaScript library
 build_search_index = false
 
+feed_filename = "rss.xml"
+
 # Taxonomies https://www.getzola.org/documentation/content/taxonomies/
 taxonomies = [
     { name = "series", feed = true, paginate_by = 20 },

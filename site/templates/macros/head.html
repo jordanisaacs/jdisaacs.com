@@ -11,3 +11,7 @@
         <link rel="stylesheet" href="{{ get_url(path="color/blue.css", trailing_slash=false) }}">
     {% endif %}
 {% endmacro styling %}
+
+{% macro feed_discovery(path) %}
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ get_url(path=path, trailing_slash=false) }}">
+{% endmacro %}

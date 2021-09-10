@@ -34,6 +34,17 @@
             </ul>
         {% endif %}
 
+        {% if page.extra['feeds'] %}
+            <ul class="post-list">
+                <li>
+                    {{ url::internal(path="blog/rss.xml", trailing_slash=false, text="RSS link") }}
+                </li>
+                <li>
+                    {{ url::internal(path="{{ get_url(path='blog/atom.xml', trailing_slash=false) }}", text="Atom Link") }}
+                </li>
+            </ul>
+        {% endif %}
+
         {# include gisqus comments #}
     </article>
 {%- endblock main -%}
