@@ -18,6 +18,6 @@
 
 {% macro favicon(config) %}
     {% if config.extra.favicon %}
-        <link rel="shortcut icon" href="{{ get_url(path=config.extra.favicon) }}" type="image/x-icon"/>
+        <link rel="shortcut icon" href="{{ get_url(path=config.extra.favicon, trailing_slash=false) }}?" type="image/x-icon"/>
     {% endif %}
 {% endmacro favicon %}
