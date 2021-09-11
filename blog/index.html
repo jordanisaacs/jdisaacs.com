@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://jdisaacs.com/font-jbm.css">
 
     <link rel="alternate" type="application/rss+xml" title="RSS" href="https://jdisaacs.com/blog/rss.xml">
+
+    
+        <link rel="shortcut icon" href="https://jdisaacs.com/favicon.ico" type="image/x-icon"/>
+    
 <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8" />
     <title>Jordan Isaacs' Blog</title>
@@ -89,18 +93,18 @@
         <section class="posts"><div class="post">
                     <header>
                         <h1 class="post-title">
-                            <a href="https:&#x2F;&#x2F;jdisaacs.com&#x2F;blog&#x2F;first&#x2F;">NixOS Configuration with Flakes</a>
+                            <a href="https:&#x2F;&#x2F;jdisaacs.com&#x2F;blog&#x2F;nixos-config&#x2F;">NixOS Configuration with Flakes</a>
                         </h1>
                     </header>
 
                     
 <div class="post-meta meta-page">
         
-    <span class="post-date">2021.09.06</span>
+    <span class="post-date">2021.09.11</span>
 
         
         :: <span class="post-readtime">
-            3 min read
+            18 min read
         </span>
         
 
@@ -123,54 +127,11 @@
                     <div class="post-content post-in-list">
                         <h1 id="my-flakes-philosophy">My Flakes Philosophy<a class="zola-anchor" href="#my-flakes-philosophy" aria-label="Anchor link for: my-flakes-philosophy">§</a>
 </h1>
-<p>In this blog post I will overview how to setup flakes with NixOS and home-manager and my approach to configuring. While flakes are <em>technically</em> unstable I have only ever used NixOS with flakes and have not had any issues with them. NixOS and home-manager have a wealth of options but most of them can be grouped together into sensible categories such as <em>sound</em>, <em>display</em>, etc. Therefore I leverage the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Module">Nix module system</a> to create a high level set of options that makes setting up new systems and profiles easier.</p>
+<p>In this blog post I will overview how to setup flakes with <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.org/">NixOS</a> and <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/nix-community/home-manager">home-manager</a>, and my approach to system configuration. I will also take care to introduce the Nix language and provide links to learning more. This is the first post in my <em>NixOS Desktop</em> series which I will use to explore my Nix and Linux journey. I installed Linux/NixOS for the first time one month ago so it is following me in real time from beginner to eventually, hopefully master :). This post is heavy on the Nix as I am laying the foundation for future posts. But in the future expect it to be much more balanced. For a sneak peek of what is to come check out my <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/jordanisaacs/dotfiles">dotfiles</a>.</p>
 
                         </div>
                     <div>
-                            <a class="read-more button" href="https:&#x2F;&#x2F;jdisaacs.com&#x2F;blog&#x2F;first&#x2F;">read more... →</a>
-                        </div>
-                    </div><div class="post">
-                    <header>
-                        <h1 class="post-title">
-                            <a href="https:&#x2F;&#x2F;jdisaacs.com&#x2F;blog&#x2F;second&#x2F;">NixOS Configuration with Flakes</a>
-                        </h1>
-                    </header>
-
-                    
-<div class="post-meta meta-page">
-        
-    <span class="post-date">2021.09.06</span>
-
-        
-        :: <span class="post-readtime">
-            2 min read
-        </span>
-        
-
-        
-    
-    ::
-    <strong>^<a href="https://jdisaacs.com/series/nixos-desktop/">NixOS Desktop</a></strong>
-    
-    
-    ::
-    #<a href="https://jdisaacs.com/tags/nixos/">NixOS</a>
-    #<a href="https://jdisaacs.com/tags/nix/">Nix</a>
-    #<a href="https://jdisaacs.com/tags/x11/">X11</a>
-    #<a href="https://jdisaacs.com/tags/linux/">Linux</a>
-    
-    
-    </div>
-
-
-                    <div class="post-content post-in-list">
-                        <h1 id="my-flakes-philosophy">My Flakes Philosophy<a class="zola-anchor" href="#my-flakes-philosophy" aria-label="Anchor link for: my-flakes-philosophy">§</a>
-</h1>
-<p>In this blog post I will overview how to setup flakes with NixOS and home-manager and my approach to configuring. While flakes are <em>technically</em> unstable I have only ever used NixOS with flakes and have not had any issues with them. NixOS and home-manager have a wealth of options but most of them can be grouped together into sensible categories such as <em>sound</em>, <em>display</em>, etc. Therefore I leverage the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Module">Nix module system</a> to create a high level set of options that makes setting up new systems and profiles easier.</p>
-
-                        </div>
-                    <div>
-                            <a class="read-more button" href="https:&#x2F;&#x2F;jdisaacs.com&#x2F;blog&#x2F;second&#x2F;">read more... →</a>
+                            <a class="read-more button" href="https:&#x2F;&#x2F;jdisaacs.com&#x2F;blog&#x2F;nixos-config&#x2F;">read more... →</a>
                         </div>
                     </div></section>
     </article></div>

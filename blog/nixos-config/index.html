@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>NixOS Configuration with Flakes - jd</title>
+    <link rel="stylesheet" href="https://jdisaacs.com/style.css">
+    <link rel="stylesheet" href="https://jdisaacs.com/color/blue.css">
+
+    <link rel="stylesheet" href="https://jdisaacs.com/font-jbm.css">
+
+    
+        <link rel="shortcut icon" href="https://jdisaacs.com/favicon.ico" type="image/x-icon"/>
+    
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <title>Jordan Isaacs' Blog</title>
+</head>
+
+
+<body class="">
+    <div class="container center">
+<header class="header">
+    <div class="header-inner">
+        <div class="header-logo">
+            <a href="https:&#x2F;&#x2F;jdisaacs.com">
+    <div class="logo">
+        jd
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger" tabindex="0">
+            <div class="menu-trigger-button">menu</div>
+        </div>
+    </div>
+    
+    <nav class="menu-desktop">
+            <ul class="menu-inner menu-inner-desktop">
+                
+    
+        
+        
+        
+        
+            <li><a href="https://jdisaacs.com/blog">
+        blog
+    </a></li><li><a href="https://jdisaacs.com/about">
+        about
+    </a></li><li><a href="https://jdisaacs.com/projects">
+        projects
+    </a></li><li><a href="https:&#x2F;&#x2F;github.com&#x2F;jordanisaacs" rel="noopener noreferrer nofollow" target="_blank">
+        github </a></li></ul>
+
+        </nav>
+        <nav class="menu-mobile">
+            <ul class="menu-inner menu-inner-mobile hidden">
+                
+    
+        
+        
+        
+        
+            <li><a href="https://jdisaacs.com/blog">
+        blog
+    </a></li><li><a href="https://jdisaacs.com/about">
+        about
+    </a></li><li><a href="https://jdisaacs.com/projects">
+        projects
+    </a></li><li><a href="https:&#x2F;&#x2F;github.com&#x2F;jordanisaacs" rel="noopener noreferrer nofollow" target="_blank">
+        github </a></li>
+            </ul>
+        </nav>
+    
+</header>
+<div class="content"><article class="post">
+        
+        <header>
+            <h1 class="post-title">
+                
+                    <a href="https:&#x2F;&#x2F;jdisaacs.com&#x2F;blog&#x2F;nixos-config&#x2F;">NixOS Configuration with Flakes</a>
+                
+            </h1>
+            
+<div class="post-meta meta-page">
+        
+    <span class="post-date">2021.09.11</span>
+
+        
+        :: <span class="post-readtime">
+            18 min read
+        </span>
+        
+
+        
+    
+    ::
+    <strong>^<a href="https://jdisaacs.com/series/nixos-desktop/">NixOS Desktop</a></strong>
+    
+    
+    ::
+    #<a href="https://jdisaacs.com/tags/nixos/">NixOS</a>
+    #<a href="https://jdisaacs.com/tags/nix/">Nix</a>
+    #<a href="https://jdisaacs.com/tags/x11/">X11</a>
+    #<a href="https://jdisaacs.com/tags/linux/">Linux</a>
+    
+    
+    </div>
+
+            
+        </header>
+        
+        <div class="post-content">
+            <h1 id="my-flakes-philosophy">My Flakes Philosophy<a class="zola-anchor" href="#my-flakes-philosophy" aria-label="Anchor link for: my-flakes-philosophy">§</a>
+</h1>
+<p>In this blog post I will overview how to setup flakes with <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.org/">NixOS</a> and <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/nix-community/home-manager">home-manager</a>, and my approach to system configuration. I will also take care to introduce the Nix language and provide links to learning more. This is the first post in my <em>NixOS Desktop</em> series which I will use to explore my Nix and Linux journey. I installed Linux/NixOS for the first time one month ago so it is following me in real time from beginner to eventually, hopefully master :). This post is heavy on the Nix as I am laying the foundation for future posts. But in the future expect it to be much more balanced. For a sneak peek of what is to come check out my <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/jordanisaacs/dotfiles">dotfiles</a>.</p>
+<span id="continue-reading"></span>
+<p>NixOS and home-manager have extensive options but most of them only need to be configured once. Things like sound settings, boot, etc. can be abstracted into groups. Therefore I leverage the Nix module system, which I will go into in detail, to create high level options that makes setting up new systems and profiles easy.</p>
+<p>Before I get into the details, I have to thank <strong>Wil Taylor</strong> for his amazing NixOS series (see below) and his <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/wiltaylor/dotfiles">dotfiles</a> repository for providing a baseline. My configuration started off as a copy of his and has since evolved but much remains similar. His name will appear often for credit in this post. He uses a <em>role</em> system which involves importing configuration files, while I prefer to use the built-in module system which provides more flexibility.</p>
+<p><strong>Note</strong>: While flakes are technically unstable, I have been daily driving them with no issues.</p>
+<h1 id="setting-up-nixos">Setting up NixOS<a class="zola-anchor" href="#setting-up-nixos" aria-label="Anchor link for: setting-up-nixos">§</a>
+</h1>
+<p>There has been much written on setting up NixOS so if you don't have it installed check out these resources:</p>
+<ul>
+<li><a rel="noopener nofollow noreferrer" target="_blank" href="https://grahamc.com/blog/nixos-on-dell-9560">Graham Christensen Dell Setup</a>
+<ul>
+<li>Setting up partitions and encryption (luks)</li>
+</ul>
+</li>
+<li><a rel="noopener nofollow noreferrer" target="_blank" href="https://www.youtube.com/watch?v=QKoQ1gKJY5A&amp;list=PL-saUBvIJzOkjAw_vOac75v-x6EzNzZq-">Wil Taylor's NixOS series</a>
+<ul>
+<li>Overview of how to install NixOS and basic flake introduction. Also overviews how to set up an initial NixOS flake configuration. I used the series to get started with NixOS/Flakes and highly recommend watching the full series.</li>
+</ul>
+</li>
+</ul>
+<h1 id="introduction-to-flakes">Introduction to Flakes<a class="zola-anchor" href="#introduction-to-flakes" aria-label="Anchor link for: introduction-to-flakes">§</a>
+</h1>
+<p>I will be going into a little of how flakes work but there are already some great writeups. My go-to when I need to brush up is <a rel="noopener nofollow noreferrer" target="_blank" href="https://serokell.io/blog/practical-nix-flakes">Practical Nix Flakes</a>. Also Wil Taylor's series provides an overview.</p>
+<p>See the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Flakes">wiki</a> for installation and more information. I recommend following the system-wide installation as the <code>nixFlakes</code> installation option will not work as we need access to the <code>nixos-rebuild ***** --flake</code> command.</p>
+<h1 id="writing-flake-nix">Writing flake.nix<a class="zola-anchor" href="#writing-flake-nix" aria-label="Anchor link for: writing-flake-nix">§</a>
+</h1>
+<p>Assuming you have Nix installed with flakes enabled we will start our journey to creating a configuration. The core of the system configuration is <code>flake.nix</code>. This is the file that all our nix flake commands look for.</p>
+<h2 id="initialize-flake">Initialize flake<a class="zola-anchor" href="#initialize-flake" aria-label="Anchor link for: initialize-flake">§</a>
+</h2>
+<p>First create your directory that will host your configuration. I followed Wil Taylor's lead (see NixOS series) and created <code>.dotfiles</code> folder in my home directory. In your folder call <code>nix flake init</code> which will create a basic flake. You should see:</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{ </span><span style="color:#65737e;"># .dotfiles/flake.nix
+</span><span>  </span><span style="color:#d08770;">description </span><span>= &quot;</span><span style="color:#a3be8c;">A very basic flake</span><span>&quot;;
+</span><span>
+</span><span>  </span><span style="color:#d08770;">outputs </span><span>= </span><span style="color:#8fa1b3;">{ </span><span>self, nixpkgs </span><span style="color:#8fa1b3;">}</span><span>: {
+</span><span>
+</span><span>    </span><span style="color:#d08770;">packages</span><span>.</span><span style="color:#d08770;">x86_64-linux</span><span>.</span><span style="color:#d08770;">hello </span><span>= </span><span style="color:#bf616a;">nixpkgs</span><span>.</span><span style="color:#bf616a;">legacyPackages</span><span>.</span><span style="color:#bf616a;">x86_64-linux</span><span>.</span><span style="color:#bf616a;">hello</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#d08770;">defaultPackage</span><span>.</span><span style="color:#d08770;">x86_64-linux </span><span>= </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#bf616a;">packages</span><span>.</span><span style="color:#bf616a;">x86_64-linux</span><span>.</span><span style="color:#bf616a;">hello</span><span>;
+</span><span>
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<p>We can update the description to signify that this is our system config <code>description = &quot;System config&quot;;</code>.</p>
+<h2 id="setting-inputs">Setting inputs<a class="zola-anchor" href="#setting-inputs" aria-label="Anchor link for: setting-inputs">§</a>
+</h2>
+<p>Inputs are implicit in <code>nix flake init</code>. But we want to make it explicit and add extra inputs such as home-manager.</p>
+<p>I am a believer in <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/nix-community/home-manager">home-manager</a> for configuring my user environment. It allows me to have my user config follow the same philosophies of my NixOS config. Combined with its support of flakes, all configuration can be in a single github repository and is reproducible.</p>
+<p>I also use unstable nixpkgs (see <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Nix_channels">channels</a>) as the default which is a preference of mine. I have home-manager follow my nixpkgs so everything is following my own <code>flake.lock</code>. For more information on inputs check out the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html#flake-inputs">manual</a>.</p>
+<p>URLs can be in any format as described by the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Flakes#Input_schema">schema</a>. By default it assumes that any repository as input is a <code>flake</code>. Therefore it looks for a <code>flake.nix</code> file in the base directory.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{ </span><span style="color:#65737e;"># .dotfiles/flake.nix
+</span><span>  </span><span style="color:#65737e;">#...
+</span><span>
+</span><span>  </span><span style="color:#d08770;">inputs </span><span>= {
+</span><span>    </span><span style="color:#d08770;">nixpkgs</span><span>.</span><span style="color:#d08770;">url </span><span>= &quot;</span><span style="color:#a3be8c;">nixpkgs/nixos-unstable</span><span>&quot;;
+</span><span>
+</span><span>    </span><span style="color:#d08770;">home-manager </span><span>= {
+</span><span>      </span><span style="color:#d08770;">url </span><span>= &quot;</span><span style="color:#a3be8c;">github:nix-community/home-manager</span><span>&quot;;
+</span><span>      </span><span style="color:#d08770;">inputs</span><span>.</span><span style="color:#d08770;">nixpkgs</span><span>.</span><span style="color:#d08770;">follows </span><span>= &quot;</span><span style="color:#a3be8c;">nixpkgs</span><span>&quot;;
+</span><span>    };
+</span><span>  };
+</span><span>
+</span><span>  </span><span style="color:#65737e;">#...
+</span><span>}
+</span></code></pre>
+<p>All external inputs should be placed in the inputs. These inputs are what Nix uses to generate the <code>flake.lock</code> file. The lock file sets the versions being used which is what provides the reproducibility. As our home-manager and system configuration are in a single flake, updating our packages will be as simple as <code>nix flake update</code>.</p>
+<h2 id="setting-up-outputs">Setting up outputs<a class="zola-anchor" href="#setting-up-outputs" aria-label="Anchor link for: setting-up-outputs">§</a>
+</h2>
+<p>The outputs of a flake are where our actual configuration will be. However, keeping our entire configuration in <code>flake.nix</code> will quickly get unwieldy. So this is where we will be importing our own function for building users and systems.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{ </span><span style="color:#65737e;"># .dotfiles/flake.nix
+</span><span>  </span><span style="color:#65737e;">#...
+</span><span>
+</span><span>  </span><span style="color:#d08770;">outputs </span><span>= </span><span style="color:#8fa1b3;">{ </span><span>nixpkgs, home-manager, ...</span><span style="color:#8fa1b3;">}</span><span>@inputs:
+</span><span>  </span><span style="color:#b48ead;">let
+</span><span>    </span><span style="color:#b48ead;">inherit </span><span>(</span><span style="color:#bf616a;">nixpkgs</span><span>) </span><span style="color:#d08770;">lib</span><span>;
+</span><span>    
+</span><span>    </span><span style="color:#d08770;">util </span><span>= </span><span style="color:#96b5b4;">import </span><span style="color:#a3be8c;">./lib </span><span>{
+</span><span>      </span><span style="color:#b48ead;">inherit </span><span style="color:#d08770;">system pkgs home-manager lib</span><span>; </span><span style="color:#d08770;">overlays </span><span>= (</span><span style="color:#bf616a;">pkgs</span><span>.</span><span style="color:#bf616a;">overlays</span><span>);
+</span><span>    };
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">inherit </span><span>(</span><span style="color:#bf616a;">util</span><span>) </span><span style="color:#d08770;">user</span><span>;
+</span><span>    </span><span style="color:#b48ead;">inherit </span><span>(</span><span style="color:#bf616a;">util</span><span>) </span><span style="color:#d08770;">host</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#d08770;">pkgs </span><span>= </span><span style="color:#96b5b4;">import </span><span style="color:#bf616a;">nixpkgs </span><span>{
+</span><span>        </span><span style="color:#b48ead;">inherit </span><span style="color:#d08770;">system</span><span>;
+</span><span>        </span><span style="color:#d08770;">config</span><span>.</span><span style="color:#d08770;">allowUnfree </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>        </span><span style="color:#d08770;">overlays </span><span>= [];
+</span><span>    };
+</span><span>
+</span><span>    </span><span style="color:#d08770;">system </span><span>= &quot;</span><span style="color:#a3be8c;">x86_64-linux</span><span>&quot;;
+</span><span>  </span><span style="color:#b48ead;">in </span><span>{
+</span><span>    </span><span style="color:#d08770;">homeManagerConfigurations </span><span>= {
+</span><span>      </span><span style="color:#d08770;">jd </span><span>= </span><span style="color:#bf616a;">user</span><span>.</span><span style="color:#bf616a;">mkHMUser </span><span>{
+</span><span>        </span><span style="color:#65737e;"># ...
+</span><span>      };
+</span><span>    };
+</span><span>
+</span><span>    </span><span style="color:#d08770;">nixosConfigurations </span><span>= {
+</span><span>      </span><span style="color:#d08770;">laptop </span><span>= </span><span style="color:#bf616a;">host</span><span>.</span><span style="color:#bf616a;">mkHost </span><span>{
+</span><span>        </span><span style="color:#65737e;"># ...
+</span><span>      };
+</span><span>    };
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<h3 id="nix-language">Nix Language<a class="zola-anchor" href="#nix-language" aria-label="Anchor link for: nix-language">§</a>
+</h3>
+<p>There is a lot to unpack here so I'll start with what the Nix Language is doing. If you are experienced with Nix, you can skip this section. I will go over the language briefly as we go along and provide links but I highly recommend James Fisher's <a rel="noopener nofollow noreferrer" target="_blank" href="https://jameshfisher.com/2014/09/28/nix-by-example/">Nix by example</a> for learning Nix.</p>
+<p>The <code>let</code> section:</p>
+<ul>
+<li>The <code>output</code> is a <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Nix_Expression_Language#Functions">function</a> that is called with the inputs declared earlier.</li>
+<li>We declare local variables using the <code>let ... in</code> syntax. Nix pills has a good <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.org/guides/nix-pills/basics-of-language.html#idm140737320575616">overview</a>.</li>
+<li>In our let we utilize <code>inherit</code> which lets us copy variables easily. The manual has a nice <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.org/manual/nix/stable/#idm140737321959024">description</a>.</li>
+<li>We create our own <code>pkgs</code> which imports <code>nixpkgs</code> with our configuration of choice. I install non-free packages like <em>obsidian</em> and <em>zoom-us</em> so I make sure it is allowed (see <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/FAQ/How_can_I_install_a_proprietary_or_unfree_package%3F">wiki</a>)</li>
+<li>We import our custom functions using <code>import ./lib { #parameters }</code>. Importing is like calling a function, see the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.org/guides/nix-pills/functions-and-imports.html">Nix Pills</a></li>
+<li>We will not cover <code>overlays</code> in this post as they are not important to the task at hand, but if you are interested check out the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Overlays">wiki</a>.</li>
+</ul>
+<p>The <code>in</code> section:</p>
+<ul>
+<li>We call our homemade imported functions <code>user.mkHMUser</code> and <code>host.mkHost</code> with parameters. We will write out these functions and their parameters next.</li>
+</ul>
+<h3 id="homemade-functions">Homemade Functions<a class="zola-anchor" href="#homemade-functions" aria-label="Anchor link for: homemade-functions">§</a>
+</h3>
+<p>Our homemade funtions <code>mkHost</code> and <code>mkHMUser</code> are our abstraction away from base option settings. Our configuration options will be parameters to this function which will take them act on them build our system and home-manager flakes. You can have as many <code>homeManagerConfigurations</code> and <code>nixosConfigurations</code> as you want enabling you to have every OS config and User config in one reproducible github repository ＼(＾▽＾)／.</p>
+<h1 id="library-functions">Library Functions<a class="zola-anchor" href="#library-functions" aria-label="Anchor link for: library-functions">§</a>
+</h1>
+<p>Before I jump into writing our functions, I have to credit the one and only <strong>Wil Taylor</strong> for providing the idea and original code (see <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/wiltaylor/dotfiles/tree/master/lib">here</a>)</p>
+<h2 id="lib-default-nix">./lib default.nix<a class="zola-anchor" href="#lib-default-nix" aria-label="Anchor link for: lib-default-nix">§</a>
+</h2>
+<p>When you import a directory, Nix automatically looks for a <code>default.nix</code> file to run. So this is where we will import our functions.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span style="color:#65737e;"># .dotfiles/lib/default.nix
+</span><span style="color:#8fa1b3;">{ </span><span>pkgs, home-manager, system, lib, overlays, ... </span><span style="color:#8fa1b3;">}</span><span>:
+</span><span style="color:#b48ead;">rec </span><span>{
+</span><span>  </span><span style="color:#d08770;">user </span><span>= </span><span style="color:#96b5b4;">import </span><span style="color:#a3be8c;">./user.nix </span><span>{ </span><span style="color:#b48ead;">inherit </span><span style="color:#d08770;">pkgs home-manager lib system overlays</span><span>; };
+</span><span>  </span><span style="color:#d08770;">host </span><span>= </span><span style="color:#96b5b4;">import </span><span style="color:#a3be8c;">./host.nix </span><span>{ </span><span style="color:#b48ead;">inherit </span><span style="color:#d08770;">system pkgs home-manager lib user</span><span>; };
+</span><span>}
+</span></code></pre>
+<p>Notice we use <code>rec</code> around our imports. This lets us self reference so we can call <code>util.user</code> in our <code>flake.nix</code>. See <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Nix_Expression_Language#rec_statement">wiki</a>.</p>
+<h1 id="system-configuration">System Configuration<a class="zola-anchor" href="#system-configuration" aria-label="Anchor link for: system-configuration">§</a>
+</h1>
+<p>We will start with learning how to make a system configuration. In this section I will introduce you to Nix Modules which are fundamental to NixOS.</p>
+<h2 id="mkhost">mkHost<a class="zola-anchor" href="#mkhost" aria-label="Anchor link for: mkhost">§</a>
+</h2>
+<p>This function is what we use to make system configurations. There are three parts to the parameters, hardware/kernel options and the <code>systemConfig</code>, and <code>users</code>. The hardware/kernel options are mapped one-to-one to NixOS options, while <code>systemConfig</code> will be our abstracted configuration module.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span style="color:#65737e;"># .dotfiles/lib/host.nix
+</span><span style="color:#8fa1b3;">{ </span><span>system, pkgs, home-manager, lib, user, ... </span><span style="color:#8fa1b3;">}</span><span>:
+</span><span style="color:#b48ead;">with </span><span style="color:#d08770;">builtins</span><span>;
+</span><span>{
+</span><span>  </span><span style="color:#d08770;">mkHost </span><span>= </span><span style="color:#8fa1b3;">{ </span><span>name, NICs, initrdMods, kernelMods, kernelParams, kernelPackage,
+</span><span>    systemConfig, cpuCores, users, wifi ? [],
+</span><span>    gpuTempSensor ? </span><span style="color:#d08770;">null</span><span>, cpuTempSensor ? </span><span style="color:#d08770;">null
+</span><span>  </span><span style="color:#8fa1b3;">}</span><span>:
+</span><span>  </span><span style="color:#b48ead;">let
+</span><span>    </span><span style="color:#d08770;">networkCfg </span><span>= </span><span style="color:#bf616a;">listToAttrs </span><span>(</span><span style="color:#96b5b4;">map </span><span>(n: {
+</span><span>      </span><span style="color:#d08770;">name </span><span>= &quot;</span><span style="font-style:italic;color:#ab7967;">${</span><span style="font-style:italic;color:#bf616a;">n</span><span style="font-style:italic;color:#ab7967;">}</span><span>&quot;; </span><span style="color:#d08770;">value </span><span>= { </span><span style="color:#d08770;">useDHCP </span><span>= </span><span style="color:#d08770;">true</span><span>; };
+</span><span>    }) </span><span style="color:#bf616a;">NICs</span><span>);
+</span><span>
+</span><span>    </span><span style="color:#d08770;">userCfg </span><span>= {
+</span><span>      </span><span style="color:#b48ead;">inherit </span><span style="color:#d08770;">name NICs systemConfig cpuCores gpuTempSensor cpuTempSensor</span><span>;
+</span><span>    };
+</span><span>
+</span><span>    </span><span style="color:#d08770;">sys_users </span><span>= (</span><span style="color:#96b5b4;">map </span><span>(u: </span><span style="color:#bf616a;">user</span><span>.</span><span style="color:#bf616a;">mkSystemUser u</span><span>) </span><span style="color:#bf616a;">users</span><span>);
+</span><span>  </span><span style="color:#b48ead;">in </span><span style="color:#bf616a;">lib</span><span>.</span><span style="color:#bf616a;">nixosSystem </span><span>{
+</span><span>    </span><span style="color:#b48ead;">inherit </span><span style="color:#d08770;">system</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#d08770;">modules </span><span>= [
+</span><span>      {
+</span><span>        </span><span style="color:#d08770;">imports </span><span>= [ </span><span style="color:#a3be8c;">../modules/system </span><span>] ++ </span><span style="color:#bf616a;">sys_users</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#d08770;">jd </span><span>= </span><span style="color:#bf616a;">systemConfig</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#d08770;">environment</span><span>.</span><span style="color:#d08770;">etc </span><span>= {
+</span><span>          &quot;</span><span style="color:#a3be8c;">hmsystemdata.json</span><span>&quot;.</span><span style="color:#d08770;">text </span><span>= </span><span style="color:#bf616a;">toJSON userCfg</span><span>;
+</span><span>        };
+</span><span>
+</span><span>        </span><span style="color:#d08770;">networking</span><span>.</span><span style="color:#d08770;">hostName </span><span>= &quot;</span><span style="font-style:italic;color:#ab7967;">${</span><span style="font-style:italic;color:#bf616a;">name</span><span style="font-style:italic;color:#ab7967;">}</span><span>&quot;;
+</span><span>        </span><span style="color:#d08770;">networking</span><span>.</span><span style="color:#d08770;">interfaces </span><span>= </span><span style="color:#bf616a;">networkCfg</span><span>;
+</span><span>        </span><span style="color:#d08770;">networking</span><span>.</span><span style="color:#d08770;">wireless</span><span>.</span><span style="color:#d08770;">interfaces </span><span>= </span><span style="color:#bf616a;">wifi</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#d08770;">networking</span><span>.</span><span style="color:#d08770;">networkmanager</span><span>.</span><span style="color:#d08770;">enable </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>        </span><span style="color:#d08770;">networking</span><span>.</span><span style="color:#d08770;">useDHCP </span><span>= </span><span style="color:#d08770;">false</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#d08770;">boot</span><span>.</span><span style="color:#d08770;">initrd</span><span>.</span><span style="color:#d08770;">availableKernelModules </span><span>= </span><span style="color:#bf616a;">initrdMods</span><span>;
+</span><span>        </span><span style="color:#d08770;">boot</span><span>.</span><span style="color:#d08770;">kernelModules </span><span>= </span><span style="color:#bf616a;">kernelMods</span><span>;
+</span><span>        </span><span style="color:#d08770;">boot</span><span>.</span><span style="color:#d08770;">kernelParams </span><span>= </span><span style="color:#bf616a;">kernelParams</span><span>;
+</span><span>        </span><span style="color:#d08770;">boot</span><span>.</span><span style="color:#d08770;">kernelPackages </span><span>= </span><span style="color:#bf616a;">kernelPackage</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#d08770;">nixpkgs</span><span>.</span><span style="color:#d08770;">pkgs </span><span>= </span><span style="color:#bf616a;">pkgs</span><span>;
+</span><span>        </span><span style="color:#d08770;">nix</span><span>.</span><span style="color:#d08770;">maxJobs </span><span>= </span><span style="color:#bf616a;">lib</span><span>.</span><span style="color:#bf616a;">mkDefault cpuCores</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#d08770;">system</span><span>.</span><span style="color:#d08770;">stateVersion </span><span>= &quot;</span><span style="color:#a3be8c;">21.05</span><span>&quot;;
+</span><span>      }
+</span><span>    ];
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<h3 id="with-statement">with Statement<a class="zola-anchor" href="#with-statement" aria-label="Anchor link for: with-statement">§</a>
+</h3>
+<p>Another large piece of code to unpack! Starting at the beginning we have <code>with builtins;</code>. This lets us call builtin functions without using <code>builtins.***</code>. See <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.org/guides/nix-pills/basics-of-language.html#idm140737320565152">Nix Pills</a>. All the builtin functions can be found in the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.org/manual/nix/unstable/expressions/builtins.html">manual</a>.</p>
+<h3 id="networkcfg">networkCfg<a class="zola-anchor" href="#networkcfg" aria-label="Anchor link for: networkcfg">§</a>
+</h3>
+<p>Next up is <code>networkCfg</code>. The NICs variable is a list of strings. So <code>builtins.map</code> turns the list of strings into a list of <code>{ name = &quot;${nic}&quot;; value = { useDHCP = true; }</code>. Then we call <code>builtins.listToAttrs</code> which maps the list of name/value pairs to an attribute set <code>{ &quot;${nic}&quot; = { useDHCP = true; } }</code>.</p>
+<p>Now in the output we have <code>networking.interfaces = networkCfg</code> (see nixOS <a rel="noopener nofollow noreferrer" target="_blank" href="https://search.nixos.org/options?channel=21.05&amp;show=networking.interfaces.%3Cname%3E.useDHCP&amp;from=0&amp;size=50&amp;sort=relevance&amp;type=packages&amp;query=networking.interfaces">options</a>). Our list of strings was turned into suitable networking interfaces. We have <code>useDHCP = true</code> so we can have IP addresses auto-assigned (<a rel="noopener nofollow noreferrer" target="_blank" href="https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol">wikipedia</a>).</p>
+<h3 id="usercfg">userCfg<a class="zola-anchor" href="#usercfg" aria-label="Anchor link for: usercfg">§</a>
+</h3>
+<p><code>userCfg</code> doesn't actually configure anything. Instead it is used to pass information about the system to our user (aka home-manager) configurations. We use <code>builtins.toJSON</code> to save the attribute set to <code>/etc/hmsystemdata.json</code>. Passing data in between the system and user is important for settings up things like <code>.xinitrc</code> if system is not using a display manager.</p>
+<h3 id="sysusers">sysUsers<a class="zola-anchor" href="#sysusers" aria-label="Anchor link for: sysusers">§</a>
+</h3>
+<p>All of our users need to be declared in the system configuration. Therefore we map our list of <code>user</code> attributes sets that we passed from <code>flake.nix</code> to the <code>user.mkSystemUser</code> function.</p>
+<p>Now is a good time to set up our <code>user.nix</code> file with its first function.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span style="color:#65737e;"># .dotfiles/lib/user.nix
+</span><span style="color:#8fa1b3;">{ </span><span>pkgs, home-manager, lib, system, overlays, ... </span><span style="color:#8fa1b3;">}</span><span>:
+</span><span style="color:#b48ead;">with </span><span style="color:#d08770;">builtins</span><span>;
+</span><span>{
+</span><span>  </span><span style="color:#d08770;">mkHMUser </span><span>= { </span><span style="color:#65737e;"># To be completed later };
+</span><span>
+</span><span>  </span><span style="color:#d08770;">mkSystemUser </span><span>= </span><span style="color:#8fa1b3;">{ </span><span>name, groups, uid, shell, ... </span><span style="color:#8fa1b3;">}</span><span>:
+</span><span>  {
+</span><span>    </span><span style="color:#d08770;">users</span><span>.</span><span style="color:#d08770;">users</span><span>.&quot;</span><span style="font-style:italic;color:#ab7967;">${</span><span style="font-style:italic;color:#bf616a;">name</span><span style="font-style:italic;color:#ab7967;">}</span><span>&quot; = {
+</span><span>      </span><span style="color:#d08770;">name </span><span>= </span><span style="color:#bf616a;">name</span><span>;
+</span><span>      </span><span style="color:#d08770;">isNormalUser </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>      </span><span style="color:#d08770;">isSystemUser </span><span>= </span><span style="color:#d08770;">false</span><span>;
+</span><span>      </span><span style="color:#d08770;">extraGroups </span><span>= </span><span style="color:#bf616a;">groups</span><span>;
+</span><span>      </span><span style="color:#d08770;">uid </span><span>= </span><span style="color:#bf616a;">uid</span><span>;
+</span><span>      </span><span style="color:#d08770;">initialPassword </span><span>= &quot;</span><span style="color:#a3be8c;">helloworld</span><span>&quot;;
+</span><span>      </span><span style="color:#d08770;">shell </span><span>= </span><span style="color:#bf616a;">shell</span><span>;
+</span><span>    };
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<p>These are some basic user settings. See <a rel="noopener nofollow noreferrer" target="_blank" href="https://search.nixos.org/options?channel=21.05&amp;show=users.users.%3Cname%3E.isNormalUser&amp;from=0&amp;size=50&amp;sort=relevance&amp;type=packages&amp;query=isnormaluser">here</a> for info on <code>isNormalUser</code>, <code>isSystemUser</code>, and <code>uid</code>. We set an initial password but it should be changed immediately after setup. We set the shell to the chosen shell package. The groups is a list of any groups the user should be a part of.</p>
+<h3 id="kernel-goodies-etc">Kernel Goodies, etc.<a class="zola-anchor" href="#kernel-goodies-etc" aria-label="Anchor link for: kernel-goodies-etc">§</a>
+</h3>
+<p>A whole bunch of kernel settings, some networking settings, etc. The philosophy behind not abstracting these settings is that they are essential to any system and should be explicitly chosen.</p>
+<h3 id="lib-nixossystem">lib.nixosSystem<a class="zola-anchor" href="#lib-nixossystem" aria-label="Anchor link for: lib-nixossystem">§</a>
+</h3>
+<p>This is the function that produces our NixOS system flake. I was unable to find a high level description of what it does internally but if your interested here is the <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/NixOS/nixpkgs/blob/master/flake.nix">source code</a>. Warning: it is very complex. What follows is my understanding of what <code>lib.nixosSystem</code> does.</p>
+<p>The structure is laid out by the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Flakes#Using_nix_flakes_with_NixOS">NixOS wiki</a>. We set <code>system</code> and <code>modules</code>. Ooh! Our first code mentioning modules. NixOS takes in a list of module files. But what is a module!?</p>
+<h3 id="modules">Modules!<a class="zola-anchor" href="#modules" aria-label="Anchor link for: modules">§</a>
+</h3>
+<p>According to the wiki <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Module">modules</a> are Nix files that declare <em>options</em> for other modules to <em>define</em>. But what exactly does that mean? It is illustrated well when you see the structure of a module.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{
+</span><span>  </span><span style="color:#d08770;">imports </span><span>= [
+</span><span>    </span><span style="color:#65737e;"># paths to other modules
+</span><span>  ];
+</span><span>
+</span><span>  </span><span style="color:#d08770;">options </span><span>= {
+</span><span>    </span><span style="color:#65737e;"># option declarations
+</span><span>  };
+</span><span>
+</span><span>  </span><span style="color:#d08770;">config </span><span>= {
+</span><span>    </span><span style="color:#65737e;"># option definitions
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<h4 id="config">Config<a class="zola-anchor" href="#config" aria-label="Anchor link for: config">§</a>
+</h4>
+<p>Working backwards lets start with the config. This is where you act on your configuration. Lets say a user set <code>wifi.enable = true</code>. If <code>wifi.enable = true</code>, then we need install packages and run systemd services (or whatever enabling wifi does). But wait, to do that we are setting other options. Thats why the NixOS wiki says other modules <em>define</em>! Each module acts on other modules. So then where are these options coming from? The options section!</p>
+<h4 id="options">Options<a class="zola-anchor" href="#options" aria-label="Anchor link for: options">§</a>
+</h4>
+<p>Every configuration option needs to be declared as an option. Attempting to access something in the config that isn't declared will result in an error. For all the declaration options check out, you guessed it, the <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Declaration">wiki</a>.</p>
+<h4 id="imports">Imports<a class="zola-anchor" href="#imports" aria-label="Anchor link for: imports">§</a>
+</h4>
+<p>As every option needs to be declared, we want modules to interact with each other. The imports section lets you bring in your other modules and combine them.</p>
+<h3 id="back-to-lib-nixossystem">Back to lib.nixosSystem<a class="zola-anchor" href="#back-to-lib-nixossystem" aria-label="Anchor link for: back-to-lib-nixossystem">§</a>
+</h3>
+<p>Now that we have an understanding of Nix modules, lets re-examine what is happening with <code>modules</code>. If you have ever checked out <a rel="noopener nofollow noreferrer" target="_blank" href="https://search.nixos.org/options">NixOS Options Search</a> you will see <em>10,000+</em> options advertised. NixOS is really just one massive community module for setting up a Linux system!</p>
+<p>This means when we provide our NixOS configuration, we can also import in our own modules that define new options. Its as simple as that: we provide our own high level options that set built-in NixOS options.</p>
+<h3 id="imports-1">Imports<a class="zola-anchor" href="#imports-1" aria-label="Anchor link for: imports-1">§</a>
+</h3>
+<p>We import our custom module system from <code>./modules/system</code> and the config outputs from <code>mkSystemUser</code>. The <code>++</code> operator is just concatenating the lists. <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.org/manual/nix/unstable/expressions/language-operators.html">Nix Operators</a></p>
+<h3 id="jd-systemconfig">jd &amp; systemConfig<a class="zola-anchor" href="#jd-systemconfig" aria-label="Anchor link for: jd-systemconfig">§</a>
+</h3>
+<p>To prevent any accidental conflicts between the NixOS module system and my abstracted module system, all custom options are in the <code>jd.***</code> attribute set. However, from <code>flake.nix</code> you would never know this as I set <code>jd = systemConfig</code>. Now that you know how to make a system flake lets go back to our <code>flake.nix</code> and configure our first system!</p>
+<h2 id="system-flake-nix">System flake.nix<a class="zola-anchor" href="#system-flake-nix" aria-label="Anchor link for: system-flake-nix">§</a>
+</h2>
+<p>Here is an example laptop configuration that I have in use. I copied and pasted the <code>NICs</code>, <code>initrdMods</code>, and <code>kernelMods</code> from my system's auto-generated <code>hardware.nix</code> file. I am leaving systemConfig blank as that is your freedom spot to create your own settings. At the end of the blog I will have an example module for inspiration.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{</span><span style="color:#65737e;"># .dotfiles/flake.nix
+</span><span style="color:#d08770;">laptop </span><span>= </span><span style="color:#bf616a;">host</span><span>.</span><span style="color:#bf616a;">mkHost </span><span>{
+</span><span>  </span><span style="color:#d08770;">name </span><span>= &quot;</span><span style="color:#a3be8c;">laptop</span><span>&quot;;
+</span><span>  </span><span style="color:#d08770;">NICs </span><span>= [ &quot;</span><span style="color:#a3be8c;">enp0s31f6</span><span>&quot; &quot;</span><span style="color:#a3be8c;">wlp2s0</span><span>&quot; ];
+</span><span>  </span><span style="color:#d08770;">kernelPackage </span><span>= </span><span style="color:#bf616a;">pkgs</span><span>.</span><span style="color:#bf616a;">linuxPackages</span><span>;
+</span><span>  </span><span style="color:#d08770;">initrdMods </span><span>= [ &quot;</span><span style="color:#a3be8c;">xhci_pci</span><span>&quot; &quot;</span><span style="color:#a3be8c;">nvme</span><span>&quot; &quot;</span><span style="color:#a3be8c;">usb_storage</span><span>&quot; &quot;</span><span style="color:#a3be8c;">sd_mod</span><span>&quot; &quot;</span><span style="color:#a3be8c;">rtsx_pci_sdmmc</span><span>&quot; ];
+</span><span>  </span><span style="color:#d08770;">kernelMods </span><span>= [ &quot;</span><span style="color:#a3be8c;">kvm-intel</span><span>&quot; ];
+</span><span>  </span><span style="color:#d08770;">kernelParams </span><span>= [];
+</span><span>  </span><span style="color:#d08770;">systemConfig </span><span>= {
+</span><span>    </span><span style="color:#65737e;"># your abstracted system config
+</span><span>  };
+</span><span>  </span><span style="color:#d08770;">users </span><span>= [{
+</span><span>    </span><span style="color:#d08770;">name </span><span>= &quot;</span><span style="color:#a3be8c;">jd</span><span>&quot;;
+</span><span>    </span><span style="color:#d08770;">groups </span><span>= [ &quot;</span><span style="color:#a3be8c;">wheel</span><span>&quot; &quot;</span><span style="color:#a3be8c;">networkmanager</span><span>&quot; &quot;</span><span style="color:#a3be8c;">video</span><span>&quot; ];
+</span><span>    </span><span style="color:#d08770;">uid </span><span>= </span><span style="color:#d08770;">1000</span><span>;
+</span><span>    </span><span style="color:#d08770;">shell </span><span>= </span><span style="color:#bf616a;">pkgs</span><span>.</span><span style="color:#bf616a;">zsh</span><span>;
+</span><span>  }];
+</span><span>  </span><span style="color:#d08770;">cpuCores </span><span>= </span><span style="color:#d08770;">4</span><span>;
+</span><span>};
+</span><span>}
+</span></code></pre>
+<h1 id="user-configuration">User Configuration<a class="zola-anchor" href="#user-configuration" aria-label="Anchor link for: user-configuration">§</a>
+</h1>
+<p>Now that you know how Nix Modules work, this next part should be a breeze. home-manager is just a massive community module for configuring user environments rather than the operating system.</p>
+<h2 id="mkhmuser">mkHMUser<a class="zola-anchor" href="#mkhmuser" aria-label="Anchor link for: mkhmuser">§</a>
+</h2>
+<p><code>mkHMUser</code> is the function used to build our home manager flake. We have two parameters, <code>username</code> and <code>userConfig</code>. <code>userConfig</code> is the user equivalent of <code>systemConfig</code> which is our settings passed to our custom module.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span style="color:#65737e;"># .dotfiles/lib/user.nix
+</span><span style="color:#8fa1b3;">{ </span><span>pkgs, home-manager, lib, system, overlays, ... </span><span style="color:#8fa1b3;">}</span><span>:
+</span><span style="color:#b48ead;">with </span><span style="color:#d08770;">builtins</span><span>;
+</span><span>{
+</span><span>  </span><span style="color:#d08770;">mkHMUser </span><span>= </span><span style="color:#8fa1b3;">{</span><span>userConfig, username</span><span style="color:#8fa1b3;">}</span><span>:
+</span><span>    </span><span style="color:#bf616a;">home-manager</span><span>.</span><span style="color:#bf616a;">lib</span><span>.</span><span style="color:#bf616a;">homeManagerConfiguration </span><span>{
+</span><span>      </span><span style="color:#b48ead;">inherit </span><span style="color:#d08770;">system username pkgs</span><span>;
+</span><span>      </span><span style="color:#d08770;">stateVersion </span><span>= &quot;</span><span style="color:#a3be8c;">21.05</span><span>&quot;;
+</span><span>      </span><span style="color:#d08770;">configuration </span><span>=
+</span><span>        </span><span style="color:#b48ead;">let
+</span><span>          </span><span style="color:#d08770;">trySettings </span><span>= </span><span style="color:#bf616a;">tryEval </span><span>(</span><span style="color:#bf616a;">fromJSON </span><span>(</span><span style="color:#bf616a;">readFile </span><span style="color:#a3be8c;">/etc/hmsystemdata.json</span><span>));
+</span><span>          </span><span style="color:#d08770;">machineData </span><span>= </span><span style="color:#b48ead;">if </span><span style="color:#bf616a;">trySettings</span><span>.</span><span style="color:#bf616a;">success </span><span style="color:#b48ead;">then </span><span style="color:#bf616a;">trySettings</span><span>.</span><span style="color:#bf616a;">value </span><span style="color:#b48ead;">else </span><span>{};
+</span><span>
+</span><span>          </span><span style="color:#d08770;">machineModule </span><span>= </span><span style="color:#8fa1b3;">{ </span><span>pkgs, config, lib, ... </span><span style="color:#8fa1b3;">}</span><span>: {
+</span><span>            </span><span style="color:#d08770;">options</span><span>.</span><span style="color:#d08770;">machineData </span><span>= </span><span style="color:#bf616a;">lib</span><span>.</span><span style="color:#bf616a;">mkOption </span><span>{
+</span><span>              </span><span style="color:#d08770;">default </span><span>= {};
+</span><span>              </span><span style="color:#d08770;">description </span><span>= &quot;</span><span style="color:#a3be8c;">Settings passed from nixos system configuration. If not present will be empty</span><span>&quot;;
+</span><span>            };
+</span><span>
+</span><span>            </span><span style="color:#d08770;">config</span><span>.</span><span style="color:#d08770;">machineData </span><span>= </span><span style="color:#bf616a;">machineData</span><span>;
+</span><span>          };
+</span><span>        </span><span style="color:#b48ead;">in </span><span>{
+</span><span>          </span><span style="color:#d08770;">jd </span><span>= </span><span style="color:#bf616a;">userConfig</span><span>;
+</span><span>
+</span><span>          </span><span style="color:#d08770;">nixpkgs</span><span>.</span><span style="color:#d08770;">overlays </span><span>= </span><span style="color:#bf616a;">overlays</span><span>;
+</span><span>          </span><span style="color:#d08770;">nixpkgs</span><span>.</span><span style="color:#d08770;">config</span><span>.</span><span style="color:#d08770;">allowUnfree </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>
+</span><span>          </span><span style="color:#d08770;">systemd</span><span>.</span><span style="color:#d08770;">user</span><span>.</span><span style="color:#d08770;">startServices </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>          </span><span style="color:#d08770;">home</span><span>.</span><span style="color:#d08770;">stateVersion </span><span>= &quot;</span><span style="color:#a3be8c;">21.05</span><span>&quot;;
+</span><span>          </span><span style="color:#d08770;">home</span><span>.</span><span style="color:#d08770;">username </span><span>= </span><span style="color:#bf616a;">username</span><span>;
+</span><span>          </span><span style="color:#d08770;">home</span><span>.</span><span style="color:#d08770;">homeDirectory </span><span>= &quot;</span><span style="color:#a3be8c;">/home/</span><span style="font-style:italic;color:#ab7967;">${</span><span style="font-style:italic;color:#bf616a;">username</span><span style="font-style:italic;color:#ab7967;">}</span><span>&quot;;
+</span><span>
+</span><span>          </span><span style="color:#d08770;">imports </span><span>= [ </span><span style="color:#a3be8c;">../modules/users </span><span style="color:#bf616a;">machineModule </span><span>];
+</span><span>        };
+</span><span>      </span><span style="color:#d08770;">homeDirectory </span><span>= &quot;</span><span style="color:#a3be8c;">/home/</span><span style="font-style:italic;color:#ab7967;">${</span><span style="font-style:italic;color:#bf616a;">username</span><span style="font-style:italic;color:#ab7967;">}</span><span>&quot;;
+</span><span>    };
+</span><span>  
+</span><span>  </span><span style="color:#65737e;"># ...
+</span><span>}
+</span></code></pre>
+<h3 id="machinemodule">machineModule<a class="zola-anchor" href="#machinemodule" aria-label="Anchor link for: machinemodule">§</a>
+</h3>
+<p>This is our first encounter of a custom built module! It is very simple but shows how all <code>config.***</code> need to be declared. While we never manually change what <code>config.machineData</code> is, it still needs to be declared as an option. The point of machineModule is so we can access our exported <code>hmsystemdata.json</code> in our custom modules. When accessing the data from our custom modules, all we need to do is access <code>config.machineData.***</code>!</p>
+<h3 id="home-manager-flake">Home Manager Flake<a class="zola-anchor" href="#home-manager-flake" aria-label="Anchor link for: home-manager-flake">§</a>
+</h3>
+<p>I am using the function <code>home-manager.lib.homeManagerConfiguration</code> from home-manager's <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/nix-community/home-manager/blob/039f786e609fdb3cfd9c5520ff3791750c3eaebf/flake.nix#L30">flake.nix</a>. I copied the relevant code below.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{ </span><span style="color:#65737e;"># home-manager flake.nix
+</span><span style="color:#d08770;">homeManagerConfiguration </span><span>= </span><span style="color:#8fa1b3;">{ </span><span>configuration, system, homeDirectory
+</span><span>  , username, extraModules ? [ ], extraSpecialArgs ? { }
+</span><span>  , pkgs ? </span><span style="color:#d08770;">builtins</span><span>.</span><span style="color:#bf616a;">getAttr system nixpkgs</span><span>.</span><span style="color:#bf616a;">outputs</span><span>.</span><span style="color:#bf616a;">legacyPackages
+</span><span>  , check ? </span><span style="color:#d08770;">true</span><span>, stateVersion ? &quot;</span><span style="color:#a3be8c;">20.09</span><span>&quot; </span><span style="color:#8fa1b3;">}</span><span>@args:
+</span><span>  </span><span style="color:#b48ead;">assert </span><span style="color:#bf616a;">nixpkgs</span><span>.</span><span style="color:#bf616a;">lib</span><span>.</span><span style="color:#bf616a;">versionAtLeast stateVersion </span><span>&quot;</span><span style="color:#a3be8c;">20.09</span><span>&quot;;
+</span><span>
+</span><span>  </span><span style="color:#96b5b4;">import </span><span style="color:#a3be8c;">./modules </span><span>{
+</span><span>    </span><span style="color:#b48ead;">inherit </span><span style="color:#d08770;">pkgs check extraSpecialArgs</span><span>;
+</span><span>    </span><span style="color:#d08770;">configuration </span><span>= </span><span style="color:#8fa1b3;">{ </span><span>... </span><span style="color:#8fa1b3;">}</span><span>: {
+</span><span>      </span><span style="color:#d08770;">imports </span><span>= [ </span><span style="color:#bf616a;">configuration </span><span>] ++ </span><span style="color:#bf616a;">extraModules</span><span>;
+</span><span>      </span><span style="color:#d08770;">home </span><span>= { </span><span style="color:#b48ead;">inherit </span><span style="color:#d08770;">homeDirectory stateVersion username</span><span>; };
+</span><span>      </span><span style="color:#d08770;">nixpkgs </span><span>= { </span><span style="color:#b48ead;">inherit </span><span>(</span><span style="color:#bf616a;">pkgs</span><span>) </span><span style="color:#d08770;">config overlays</span><span>; };
+</span><span>    };
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<p>The home-manager function <code>home-manager.lib.homeManagerConfiguration</code> is similar to <code>lib.nixosSystem</code>. Rather than a list of <code>modules</code> it takes in a single <code>configuration</code>. But the outcome is the same, we can import our custom module at <code>.dotfiles/modules/users</code> and machineModule to expand the options. Just like with the system config, we set <code>jd = userConfig</code>.</p>
+<p>Make sure to pass in the other parameters (<code>system</code>, <code>homeDirectory</code>, <code>username</code>, and <code>pkgs</code>). As you can see, home manager defaults to <code>stateVersion = &quot;21.09&quot;</code> so make sure to set <code>stateVersion = &quot;21.05&quot;</code> if it is 21.05 or else an error will occur.</p>
+<p>That was much faster to get through then the system configuration setting because the concepts repeat! Its now time to start writing your own modules for configuration.</p>
+<h1 id="writing-modules">Writing Modules<a class="zola-anchor" href="#writing-modules" aria-label="Anchor link for: writing-modules">§</a>
+</h1>
+<p>When writing your own modules you will be abstracting existing NixOS and home-manager modules. Therefore you should have all the options handy. Use <a href="hhttps://search.nixos.org/options">NixOS Search</a> when doing system configurations, and <a rel="noopener nofollow noreferrer" target="_blank" href="https://rycee.gitlab.io/home-manager/options.html">home-manager Appendix A</a> when doing user configurations.</p>
+<p>If you want inspiration for modules to write check out my <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/jordanisaacs/dotfiles/tree/master/modules">modules folder</a>. A good understanding of Nix and the builtin functions makes writing modules much easier. A great resource for builtin functions is teu5us' <a rel="noopener nofollow noreferrer" target="_blank" href="https://teu5us.github.io/nix-lib.html">website</a>. Also don't be afraid to google and read <code>nixpkgs</code> github source. Most of the time its not actually that complicated.</p>
+<h2 id="example-module">Example Module<a class="zola-anchor" href="#example-module" aria-label="Anchor link for: example-module">§</a>
+</h2>
+<p>This module is taken from my user setting for git.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span style="color:#65737e;"># .dotfiles/modules/users/default.nix
+</span><span style="color:#8fa1b3;">{ </span><span>pkgs, config, lib, ... </span><span style="color:#8fa1b3;">}</span><span>:
+</span><span>
+</span><span>{
+</span><span>  </span><span style="color:#d08770;">imports </span><span>= [
+</span><span>    </span><span style="color:#a3be8c;">./git
+</span><span>  ];
+</span><span>}
+</span></code></pre>
+<p>We are utilizing module imports to group each module file into nice categories. Remember that when importing a directory, Nix looks for <code>default.nix</code></p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span style="color:#65737e;"># .dotfiles/modules/users/git/default.nix
+</span><span style="color:#8fa1b3;">{ </span><span>pkgs, config, lib, ... </span><span style="color:#8fa1b3;">}</span><span>:
+</span><span style="color:#b48ead;">with </span><span style="color:#bf616a;">lib</span><span>;
+</span><span>
+</span><span style="color:#b48ead;">let
+</span><span>  </span><span style="color:#d08770;">cfg </span><span>= </span><span style="color:#bf616a;">config</span><span>.</span><span style="color:#bf616a;">jd</span><span>.</span><span style="color:#bf616a;">git</span><span>;
+</span><span style="color:#b48ead;">in </span><span>{
+</span><span>  </span><span style="color:#d08770;">options</span><span>.</span><span style="color:#d08770;">jd</span><span>.</span><span style="color:#d08770;">git </span><span>= {
+</span><span>    </span><span style="color:#d08770;">enable </span><span>= </span><span style="color:#bf616a;">mkOption </span><span>{
+</span><span>      </span><span style="color:#d08770;">description </span><span>= &quot;</span><span style="color:#a3be8c;">Enable git</span><span>&quot;;
+</span><span>      </span><span style="color:#d08770;">type </span><span>= </span><span style="color:#bf616a;">types</span><span>.</span><span style="color:#bf616a;">bool</span><span>;
+</span><span>      </span><span style="color:#d08770;">default </span><span>= </span><span style="color:#d08770;">false</span><span>;
+</span><span>    };
+</span><span>
+</span><span>    </span><span style="color:#d08770;">userName </span><span>= </span><span style="color:#bf616a;">mkOption </span><span>{
+</span><span>      </span><span style="color:#d08770;">description </span><span>= &quot;</span><span style="color:#a3be8c;">Name for git</span><span>&quot;;
+</span><span>      </span><span style="color:#d08770;">type </span><span>= </span><span style="color:#bf616a;">types</span><span>.</span><span style="color:#bf616a;">str</span><span>;
+</span><span>      </span><span style="color:#d08770;">default </span><span>= &quot;</span><span style="color:#a3be8c;">Jordan Isaacs</span><span>&quot;;
+</span><span>    };
+</span><span>
+</span><span>    </span><span style="color:#d08770;">userEmail </span><span>= </span><span style="color:#bf616a;">mkOption </span><span>{
+</span><span>      </span><span style="color:#d08770;">description </span><span>= &quot;</span><span style="color:#a3be8c;">Email for git</span><span>&quot;;
+</span><span>      </span><span style="color:#d08770;">type </span><span>= </span><span style="color:#bf616a;">types</span><span>.</span><span style="color:#bf616a;">str</span><span>;
+</span><span>      </span><span style="color:#d08770;">default </span><span>= &quot;</span><span style="color:#a3be8c;">github@jdisaacs.com</span><span>&quot;;
+</span><span>    };
+</span><span>  };
+</span><span>
+</span><span>  </span><span style="color:#d08770;">config </span><span>= </span><span style="color:#bf616a;">mkIf </span><span>(</span><span style="color:#bf616a;">cfg</span><span>.</span><span style="color:#bf616a;">enable</span><span>) {
+</span><span>    </span><span style="color:#d08770;">programs</span><span>.</span><span style="color:#d08770;">git </span><span>= {
+</span><span>      </span><span style="color:#d08770;">enable </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>      </span><span style="color:#d08770;">userName </span><span>= </span><span style="color:#bf616a;">cfg</span><span>.</span><span style="color:#bf616a;">userName</span><span>;
+</span><span>      </span><span style="color:#d08770;">userEmail </span><span>= </span><span style="color:#bf616a;">cfg</span><span>.</span><span style="color:#bf616a;">userEmail</span><span>;
+</span><span>      </span><span style="color:#d08770;">extraConfig </span><span>= {
+</span><span>        </span><span style="color:#d08770;">credential</span><span>.</span><span style="color:#d08770;">helper </span><span>= &quot;</span><span style="font-style:italic;color:#ab7967;">${
+</span><span style="font-style:italic;color:#b48ead;">            </span><span style="font-style:italic;color:#bf616a;">pkgs</span><span style="font-style:italic;color:#c0c5ce;">.</span><span style="font-style:italic;color:#bf616a;">git</span><span style="font-style:italic;color:#c0c5ce;">.</span><span style="font-style:italic;color:#bf616a;">override </span><span style="font-style:italic;color:#b48ead;">{ </span><span style="font-style:italic;color:#d08770;">withLibsecret </span><span style="font-style:italic;color:#c0c5ce;">= </span><span style="font-style:italic;color:#d08770;">true</span><span style="font-style:italic;color:#b48ead;">; }
+</span><span style="font-style:italic;color:#b48ead;">          </span><span style="font-style:italic;color:#ab7967;">}</span><span style="color:#a3be8c;">/bin/git-credential-libsecret</span><span>&quot;;
+</span><span>      };
+</span><span>    };
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<p>I create a shortcut to the current config, by setting <code>cfg = config.jd.git</code>.</p>
+<p>There is an <code>enable</code> option that allows us to easily turn on and off git. This way instead of having to remove any custom configuration, just set <code>enable = false</code> the attribute set won't be made anymore due to <code>mkIf</code>. The <code>userName</code> and <code>userEmail</code> have defaults that I should never have to change, but are there in case I do. And I have git setup to always use my keyring (what is a keyring, and setting it up will be in a future blogpost!) instead of plaintext (from <a rel="noopener nofollow noreferrer" target="_blank" href="https://nixos.wiki/wiki/Git">wiki</a>).</p>
+<p>Now from <code>flake.nix</code> all we have to do is the following. Notice the <code>jd.git.***</code> is hidden.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{ </span><span style="color:#65737e;"># flake.nix
+</span><span>  </span><span style="color:#d08770;">jd </span><span>= </span><span style="color:#bf616a;">user</span><span>.</span><span style="color:#bf616a;">mkHMUser </span><span>{
+</span><span>    </span><span style="color:#d08770;">userConfig </span><span>= {
+</span><span>      </span><span style="color:#d08770;">git</span><span>.</span><span style="color:#d08770;">enable </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>    };
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<h1 id="flakes-actions">Flakes Actions<a class="zola-anchor" href="#flakes-actions" aria-label="Anchor link for: flakes-actions">§</a>
+</h1>
+<p>Now that you have written the modules you want, you probably are wondering how you actually interact your flakes.</p>
+<h2 id="applying-flake">Applying Flake<a class="zola-anchor" href="#applying-flake" aria-label="Anchor link for: applying-flake">§</a>
+</h2>
+<p>While writing modules is fun, the whole point is to create a usable system! That is only possible by building and activating your flakes.</p>
+<h3 id="system">System<a class="zola-anchor" href="#system" aria-label="Anchor link for: system">§</a>
+</h3>
+<p>Applying your system flakes with your system is as easy as appending <code>--flake '.#'</code> to your <code>sudo nixos-rebuild ***</code> command. Make sure to run the command when your working directory is <code>.dotfiles</code> or wherever your flake is located.</p>
+<h3 id="user">User<a class="zola-anchor" href="#user" aria-label="Anchor link for: user">§</a>
+</h3>
+<p>Applying your user flake is a little more complicated. First you need to build the flake then activate it.</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">nix</span><span> build</span><span style="color:#bf616a;"> --impure</span><span> .#homeManagerConfigurations.$</span><span style="color:#bf616a;">USER</span><span>.activationPackage
+</span><span style="color:#bf616a;">./result/activate
+</span></code></pre>
+<p><code>--impure</code> is required because we are importing <code>hmsystemdata.json</code>. It means we are not <em>fully</em> reproducible because the file (and thus output) could change without updating the flake.</p>
+<h2 id="updating-flake">Updating Flake<a class="zola-anchor" href="#updating-flake" aria-label="Anchor link for: updating-flake">§</a>
+</h2>
+<p>As our system and user are all in the same flake, updating the flake is as easy as calling <code>nix flake update</code> when in the directory.</p>
+<h2 id="cleaning-system">Cleaning System<a class="zola-anchor" href="#cleaning-system" aria-label="Anchor link for: cleaning-system">§</a>
+</h2>
+<p>It is still a normal NixOS system so you can call <code>nix-store --gc</code> and <code>nix-store --optimize</code>.</p>
+<h1 id="finishing-up">Finishing up<a class="zola-anchor" href="#finishing-up" aria-label="Anchor link for: finishing-up">§</a>
+</h1>
+<p>Well now you hopefully have a functioning NixOS and home-manager flake with a better understanding of Nix! If you have any questions, or find any issues with anything in this post feel free to leave a github issue at my <a rel="noopener nofollow noreferrer" target="_blank" href="https://github.com/jordanisaacs/dotfiles">dotfiles repo</a></p>
+
+        </div>
+
+        
+
+        
+
+        
+    </article></div>
+
+<footer class="footer">
+                <div class="footer__inner">
+  <div class="copyright">
+      <span>
+          © 2021 Jordan Isaacs ::
+          Powered by
+          <a href="https:&#x2F;&#x2F;getzola.org&#x2F;" rel="noopener noreferrer nofollow" target="_blank">
+        Zola</a>
+      </span>
+      <span>
+          Like this site? see <a href="https:&#x2F;&#x2F;github.com&#x2F;jordanisaacs&#x2F;jdisaacs.com" rel="noopener noreferrer nofollow" target="_blank">
+        source code here</a>
+      </span>
+  </div>
+
+    <script type="text/javascript" src="https://jdisaacs.com/js/main.js"></script>
+</div>
+            </footer></div>
+</body>
+
+</html>

@@ -7,25 +7,15 @@
         <generator>Zola</generator>
         <language>en</language>
         <atom:link href="https://jdisaacs.com/tags/nixos/rss.xml" rel="self" type="application/rss+xml"/>
-        <lastBuildDate>Mon, 06 Sep 2021 00:00:00 +0000</lastBuildDate>
+        <lastBuildDate>Sat, 11 Sep 2021 00:00:00 +0000</lastBuildDate>
         <item>
             <title>NixOS Configuration with Flakes</title>
-            <pubDate>Mon, 06 Sep 2021 00:00:00 +0000</pubDate>
-            <link>https://jdisaacs.com/blog/first/</link>
-            <guid>https://jdisaacs.com/blog/first/</guid>
+            <pubDate>Sat, 11 Sep 2021 00:00:00 +0000</pubDate>
+            <link>https://jdisaacs.com/blog/nixos-config/</link>
+            <guid>https://jdisaacs.com/blog/nixos-config/</guid>
             <description>&lt;h1 id=&quot;my-flakes-philosophy&quot;&gt;My Flakes Philosophy&lt;a class=&quot;zola-anchor&quot; href=&quot;#my-flakes-philosophy&quot; aria-label=&quot;Anchor link for: my-flakes-philosophy&quot;&gt;§&lt;&#x2F;a&gt;
 &lt;&#x2F;h1&gt;
-&lt;p&gt;In this blog post I will overview how to setup flakes with NixOS and home-manager and my approach to configuring. While flakes are &lt;em&gt;technically&lt;&#x2F;em&gt; unstable I have only ever used NixOS with flakes and have not had any issues with them. NixOS and home-manager have a wealth of options but most of them can be grouped together into sensible categories such as &lt;em&gt;sound&lt;&#x2F;em&gt;, &lt;em&gt;display&lt;&#x2F;em&gt;, etc. Therefore I leverage the &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Module&quot;&gt;Nix module system&lt;&#x2F;a&gt; to create a high level set of options that makes setting up new systems and profiles easier.&lt;&#x2F;p&gt;
-</description>
-        </item>
-        <item>
-            <title>NixOS Configuration with Flakes</title>
-            <pubDate>Mon, 06 Sep 2021 00:00:00 +0000</pubDate>
-            <link>https://jdisaacs.com/blog/second/</link>
-            <guid>https://jdisaacs.com/blog/second/</guid>
-            <description>&lt;h1 id=&quot;my-flakes-philosophy&quot;&gt;My Flakes Philosophy&lt;a class=&quot;zola-anchor&quot; href=&quot;#my-flakes-philosophy&quot; aria-label=&quot;Anchor link for: my-flakes-philosophy&quot;&gt;§&lt;&#x2F;a&gt;
-&lt;&#x2F;h1&gt;
-&lt;p&gt;In this blog post I will overview how to setup flakes with NixOS and home-manager and my approach to configuring. While flakes are &lt;em&gt;technically&lt;&#x2F;em&gt; unstable I have only ever used NixOS with flakes and have not had any issues with them. NixOS and home-manager have a wealth of options but most of them can be grouped together into sensible categories such as &lt;em&gt;sound&lt;&#x2F;em&gt;, &lt;em&gt;display&lt;&#x2F;em&gt;, etc. Therefore I leverage the &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Module&quot;&gt;Nix module system&lt;&#x2F;a&gt; to create a high level set of options that makes setting up new systems and profiles easier.&lt;&#x2F;p&gt;
+&lt;p&gt;In this blog post I will overview how to setup flakes with &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nixos.org&#x2F;&quot;&gt;NixOS&lt;&#x2F;a&gt; and &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nix-community&#x2F;home-manager&quot;&gt;home-manager&lt;&#x2F;a&gt;, and my approach to system configuration. I will also take care to introduce the Nix language and provide links to learning more. This is the first post in my &lt;em&gt;NixOS Desktop&lt;&#x2F;em&gt; series which I will use to explore my Nix and Linux journey. I installed Linux&#x2F;NixOS for the first time one month ago so it is following me in real time from beginner to eventually, hopefully master :). This post is heavy on the Nix as I am laying the foundation for future posts. But in the future expect it to be much more balanced. For a sneak peek of what is to come check out my &lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;jordanisaacs&#x2F;dotfiles&quot;&gt;dotfiles&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 </description>
         </item>
     </channel>
