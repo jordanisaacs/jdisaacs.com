@@ -14,4 +14,10 @@
 
 {% macro feed_discovery(path) %}
     <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ get_url(path=path, trailing_slash=false) }}">
-{% endmacro %}
+{% endmacro feed_discovery %}
+
+{% macro favicon(config) %}
+    {% if config.extra.favicon %}
+        <link rel="shortcut icon" href="{{ get_url(path=config.extra.favicon) }}" type="image/x-icon"/>
+    {% endif %}
+{% endmacro favicon %}

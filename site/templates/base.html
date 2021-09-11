@@ -26,6 +26,10 @@
     {%- block rss -%}
     {%- endblock rss -%}
 
+    {%- block favicon -%}
+        {{ head::favicon(config=config) }}
+    {%- endblock favicon -%}
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8" />
     <title>Jordan Isaacs' Blog</title>
