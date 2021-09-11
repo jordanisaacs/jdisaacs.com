@@ -7,9 +7,11 @@ skip-meta = true
 
 # Who am I?
 
-I am **Jordan Isaacs**: an undergraduate studying Economics (focusing in Digital Economy) and Computer Science at Carnegie Mellon University. I love solving problems that I encounter in my daily life with technology, and then sharing them with the world.
+I am **Jordan Isaacs**: a third-year undergraduate studying Economics (focusing in Digital Economy) and Computer Science at Carnegie Mellon University. I love solving problems that I encounter in my daily life with technology, and then sharing them with the world.
 
 I also am an avid skier and am passionate about the outdoors which will inevitably make an appearance on my blog.
+
+I am shamelessly looking for an internship this upcoming Summer so feel free to reach out :)
 
 # Digital Presence
 
