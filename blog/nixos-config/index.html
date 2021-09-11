@@ -94,7 +94,7 @@
 
         
         :: <span class="post-readtime">
-            18 min read
+            19 min read
         </span>
         
 
@@ -559,7 +559,10 @@
 </span></code></pre>
 <h1 id="flakes-actions">Flakes Actions<a class="zola-anchor" href="#flakes-actions" aria-label="Anchor link for: flakes-actions">§</a>
 </h1>
-<p>Now that you have written the modules you want, you probably are wondering how you actually interact your flakes.</p>
+<p>Now that you have written the modules you want, you probably are wondering how you actually interact your flakes. However, before we can do that we need to get a git repository set up.</p>
+<h2 id="git-flakes">Git &amp; Flakes<a class="zola-anchor" href="#git-flakes" aria-label="Anchor link for: git-flakes">§</a>
+</h2>
+<p>Nix requires your flakes to be in a git repository and all <em>new</em> files that are accessed by the flake to be staged (but not necessarily committed). Attempting to access a newly created file that was not staged will result in the flake saying the file was not found. However, once the file is staged any changes can be made to it without staging or committing. If you do not commit you will see a warning: <code>warning: Git tree '*dir-path*' is dirty</code>. It is just letting you know you are building a flake with uncommitted changes.</p>
 <h2 id="applying-flake">Applying Flake<a class="zola-anchor" href="#applying-flake" aria-label="Anchor link for: applying-flake">§</a>
 </h2>
 <p>While writing modules is fun, the whole point is to create a usable system! That is only possible by building and activating your flakes.</p>
