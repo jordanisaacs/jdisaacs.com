@@ -525,7 +525,11 @@ Now from `flake.nix` all we have to do is the following. Notice the `jd.git.***`
 
 # Flakes Actions
 
-Now that you have written the modules you want, you probably are wondering how you actually interact your flakes.
+Now that you have written the modules you want, you probably are wondering how you actually interact your flakes. However, before we can do that we need to get a git repository set up.
+
+## Git & Flakes
+
+Nix requires your flakes to be in a git repository and all *new* files that are accessed by the flake to be staged (but not necessarily committed). Attempting to access a newly created file that was not staged will result in the flake saying the file was not found. However, once the file is staged any changes can be made to it without staging or committing. If you do not commit you will see a warning: `warning: Git tree '*dir-path*' is dirty`. It is just letting you know you are building a flake with uncommitted changes.
 
 ## Applying Flake
 
