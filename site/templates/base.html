@@ -6,6 +6,7 @@
 {% import "macros/lists.html" as lists -%}
 {% import "macros/squiggle-line.html" as squiggle -%}
 {% import "macros/url.html" as url -%}
+{% import "macros/analytics.html" as analytics -%}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -35,6 +36,9 @@
     <title>Jordan Isaacs' Blog</title>
 </head>
 
+{% block analytics -%}
+  {{ analytics::google_analytics(config=config) }}
+{%- endblock analytics %}
 
 <body class="">
     {#

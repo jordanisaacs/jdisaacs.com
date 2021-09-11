@@ -31,6 +31,7 @@ author = "jd"
 read_more = "read more..."
 copyright = "Jordan Isaacs"
 favicon = "favicon.ico"
+google_analytics_tracking_id = "UA-155267941-1"
 
 logo_text = "jd"
 center = true
