@@ -30,6 +30,12 @@
         a {
             text-decoration: none;
         }
+
+        &-sub {
+            color: var(--accent-secondary) !important;
+            --border: 2.5px dotted var(--accent-secondary) !important;
+            padding-top: 15px !important;
+        }
     }
 
 

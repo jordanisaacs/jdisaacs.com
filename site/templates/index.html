@@ -14,5 +14,19 @@
             {{ section.content | safe }}
         </div>
     </article>
+
+    <h3 class="post-title post-title-sub" >
+        Recent Posts
+    </h3>
+    {% set section = get_section(path="blog/_index.md") %}
+    <ul class="post-list">
+        {% for page in section.pages -%}
+            {%- if loop.index0 < 5 -%}
+                <li>
+                    {{ posts::meta(page=page, list=true) }}
+                </li>
+            {%- endif -%}
+        {%- endfor %}
+    </ul>
 </article>
 {%- endblock main -%}
