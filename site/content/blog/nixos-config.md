@@ -4,7 +4,7 @@ date = 2021-09-11
 
 [taxonomies]
 series=["NixOS Desktop"]
-tags=["NixOS", "Nix", "X11", "Linux"]
+tags=["NixOS", "Nix", "Linux", "Home Manager"]
 +++
 
 # My Flakes Philosophy
