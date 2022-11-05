@@ -24,4 +24,4 @@ mail *at* jdisaacs *dot* com
 ##  Media
 
 * Github: @[jordanisaacs ](https://github.com/jordanisaacs)
-* Discord: @snowytrees#7001
+* Mastodon: @[snowytrees ](https://hachyderm.io/@snowytrees)
